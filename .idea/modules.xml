@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/HomeBrain.iml" filepath="$PROJECT_DIR$/HomeBrain.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/homebrain_android.iml" filepath="$PROJECT_DIR$/homebrain_android.iml" />
     </modules>
   </component>
 </project>
