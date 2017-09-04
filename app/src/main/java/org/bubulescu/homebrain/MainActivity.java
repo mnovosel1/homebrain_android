@@ -14,12 +14,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         wb = (WebView) findViewById(R.id.webView);
         WebSettings webSettings = wb.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
-        ////wb.loadUrl("http://www.unpredictablecoding.com");
-        // Use local resource
         wb.loadUrl("file:///android_asset/index.html");
         wb.setWebViewClient(new WebViewClient());
     }
