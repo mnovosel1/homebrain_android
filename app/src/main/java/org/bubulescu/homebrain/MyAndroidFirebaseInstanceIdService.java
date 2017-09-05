@@ -25,8 +25,10 @@ public class MyAndroidFirebaseInstanceIdService extends FirebaseInstanceIdServic
     }
     private void sendRegistrationToServer(String token) {
         try {
-            URL url = new URL("http://hb.bubulescu.org/reg/?id=" + token);
+            URL url = new URL("http://homebrain.bubulescu.org/api/fcm/reg/" + token);
             HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+            httpCon.setRequestProperty("User-Agent", "homebrainapp/0.1");
+            httpCon.setRequestMethod("PUT");
             httpCon.setDoOutput(true);
             httpCon.getInputStream();
             Log.d(TAG, "Registered token to server: " + token);
