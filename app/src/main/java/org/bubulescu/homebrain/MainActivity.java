@@ -16,10 +16,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         wb = (WebView) findViewById(R.id.webView);
-        WebSettings webSettings = wb.getSettings();
-        webSettings.setJavaScriptEnabled(true);
+        wb.getSettings().setLoadWithOverviewMode(true);
+        wb.getSettings().setUseWideViewPort(true);
+
+        wb.getSettings().setJavaScriptEnabled(true);
+        wb.getSettings().setAllowUniversalAccessFromFileURLs(true);
 
         wb.loadUrl("file:///android_asset/index.html");
+        //wb.loadUrl("http://prez.bubulescu.org");
         wb.setWebViewClient(new WebViewClient());
     }
 

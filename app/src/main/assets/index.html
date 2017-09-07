@@ -1,40 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="utf-8">
-    <title>Swiper demo</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-
-    <link rel="stylesheet" href="css/swiper.min.css">
-    <link rel="stylesheet" href="css/homebrain.css">
-	<link rel="stylesheet" href="themes/HomeBrain.min.css" />
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Listview - jQuery Mobile Demos</title>
+	<link rel="stylesheet" href="css/themes/default/jquery.mobile-1.4.5.min.css">
+	<link rel="stylesheet" href="themes/homebrain.min.css" />
 	<link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
-	<link rel="stylesheet" href="themes/jquery.mobile.structure-1.4.5.min.css" />
-	
-
+	<script src="js/jquery.js"></script>
+	<script src="js/jquery.mobile-1.4.5.min.js"></script>
+	<style id="custom-icon">
+        .ui-icon-custom:after {
+			background-image: url("_assets/img/glyphish-icons/21-skull.png");
+			background-position: 3px 3px;
+			background-size: 70%;
+		}
+    </style>
 </head>
 <body>
-    <div class="swiper-container">
-        <div class="swiper-wrapper">
-            <div class="swiper-slide" style="height: 100%;">Slide 1<br><br><br><br><br><br><br><br><br><br></div>
-            <div class="swiper-slide">Slide 2<br><br><br><br><br><br><br><br><br><br></div>
-            <div class="swiper-slide">Slide 3<br><br><br><br><br><br><br><br><br><br></div>
-            <div class="swiper-slide">Slide 4<br><br><br><br><br><br><br><br><br><br></div>
-        </div>
-        <div class="swiper-pagination"></div>
-    </div>
+<div data-role="page" class="" data-quicklinks="true">
 
-    <script src="js/jquery.js"></script>
-    <script src="js/jquery.mobile.js"></script>
-    <script src="js/swiper.jquery.min.js"></script>
+	<div role="main" class="ui-content jqm-content">
 
-    <script>
-    var swiper = new Swiper('.swiper-container', {
-        pagination: '.swiper-pagination',
-        slidesPerView: 1,
-        paginationClickable: true,
-        loop: true
-    });
-    </script>
+		<div data-role="collapsible" data-mini="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+			<h4>HomeServer</h4>
+			<ul data-role="listview" data-inset="false">
+				<li>
+					<table style="width: 100%;">
+						<tr>
+							<td colspan="2">Heading1</td>
+							<td style="text-align: right;">switch</td>
+						</tr>
+						<tr>
+							<td colspan="2">Heading2</td>
+							<td style="text-align: right;">switch</td>
+						</tr>
+						<tr>
+							<td colspan="2">Heading3</td>
+							<td style="text-align: right;">switch</td>
+						</tr>
+					</table>
+				</li>
+				<li>
+					<table style="width: 100%;">
+						<tr>
+							<td colspan="2">Heading1</td>
+							<td style="text-align: right;">switch</td>
+						</tr>
+						<tr>
+							<td colspan="2">Heading2</td>
+							<td style="text-align: right;">switch</td>
+						</tr>
+					</table>
+				</li>
+			</ul>
+		</div>
+	</div><!-- /content -->
+
+
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="jqm-footer">
+		<p>&nbsp;&nbsp;&nbsp;Bubulescu.Org</p>
+	</div><!-- /footer -->
+
+
+</div><!-- /page -->
+
 </body>
 </html>
