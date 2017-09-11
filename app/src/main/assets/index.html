@@ -9,6 +9,8 @@
 	<link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
 	<script src="js/jquery.js"></script>
 	<script src="js/jquery.mobile-1.4.5.min.js"></script>
+	<script src="js/jquery.md5.min.js"></script>
+	<script src="js/homebrain.js"></script>
 	<style id="custom-icon">
         .ui-icon-custom:after {
 			background-image: url("_assets/img/glyphish-icons/21-skull.png");
@@ -68,9 +70,9 @@
 							<tr>
 								<td colspan="2">Power</td>
 								<td style="text-align: right;">
-							        <select name="flip-7" id="flip-7" data-role="slider" data-mini="true">
-							            <option value="off">Off</option>
-							            <option value="on">On</option>
+							        <select name="hsrv-flip" id="hsrv-flip" data-role="slider" data-mini="true">
+							            <option value="0">Off</option>
+							            <option value="1">On</option>
 							        </select>
 								</td>
 							</tr>
@@ -108,7 +110,7 @@
 							<tr>
 								<td colspan="2">KODI</td>
 								<td style="text-align: right;">
-									        <select name="flip-7" id="flip-7" data-role="slider" data-mini="true">
+									        <select name="kodi-flip" id="kodi-flip" data-role="slider" data-mini="true">
 									            <option value="off">Off</option>
 									            <option value="on">On</option>
 									        </select>
@@ -145,7 +147,7 @@
 							<tr>
 								<td colspan="3" style="text-align: right;">
 									<form>
-										<input type="range" name="slider-10" id="slider-10" min="10" max="30" step=".5" value="20">
+										<input type="range" name="htemp-slider" id="htemp-slider" min="10" max="30" step=".5" value="20">
 									</form>
 								</td>
 							</tr>
