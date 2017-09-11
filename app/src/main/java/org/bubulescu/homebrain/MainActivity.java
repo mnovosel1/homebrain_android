@@ -2,7 +2,7 @@ package org.bubulescu.homebrain;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.webkit.WebSettings;
+import android.view.Window;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 

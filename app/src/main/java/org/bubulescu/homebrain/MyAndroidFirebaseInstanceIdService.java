@@ -31,7 +31,7 @@ public class MyAndroidFirebaseInstanceIdService extends FirebaseInstanceIdServic
             httpCon.setRequestMethod("PUT");
             httpCon.setDoOutput(true);
             httpCon.getInputStream();
-            Log.d(TAG, "Registered token to server: " + token);
+            Log.d(TAG, "Registered: http://homebrain.bubulescu.org/api/fcm/reg/" + token);
         }
         catch (MalformedURLException ex) {
             Log.d(TAG, Log.getStackTraceString(ex));
