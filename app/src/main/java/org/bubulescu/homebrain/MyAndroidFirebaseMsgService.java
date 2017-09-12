@@ -25,12 +25,10 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
 
         Uri notificationSoundURI = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder mNotificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_stat_home)
                 .setContentTitle("HomeBrain")
                 .setContentText(messageBody)
-                .setSound(notificationSoundURI)
-                .setVibrate(new long[] { 1000, 2000, 3000 })
-                .setLights(Color.GREEN, 1000, 1000);
+                .setSound(notificationSoundURI);
         // .setSound(Uri.parse("uri://sadfasdfasdf.mp3"))
 
         NotificationManager notificationManager =
