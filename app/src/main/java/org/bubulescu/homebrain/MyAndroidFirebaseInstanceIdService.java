@@ -1,6 +1,7 @@
 package org.bubulescu.homebrain;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
@@ -62,6 +63,7 @@ public class MyAndroidFirebaseInstanceIdService extends FirebaseInstanceIdServic
         }
     }
 
+    @Nullable
     private String md5(String in) {
         MessageDigest digest;
         try {
