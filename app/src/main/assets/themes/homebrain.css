@@ -224,7 +224,7 @@ html .ui-alt-icon .ui-radio-off:after {
 html .ui-bar-a .ui-bar-inherit,
 html .ui-body-a .ui-bar-inherit,
 html body .ui-group-theme-a .ui-bar-inherit {
-	background-color: #4CB6AB /*{a-bar-background-color}*/;
+	background-color: #006056 /*{a-bar-background-color}*/;
 	border-color: #165850 /*{a-bar-border}*/;
 	color: #ffffff /*{a-bar-color}*/;
 	text-shadow: 0 /*{a-bar-shadow-x}*/ 1px /*{a-bar-shadow-y}*/ 0 /*{a-bar-shadow-radius}*/ #444444 /*{a-bar-shadow-color}*/;
@@ -377,6 +377,11 @@ html head + body .ui-body-a.ui-focus {
 	-webkit-box-shadow: 0 0 12px #006056 /*{a-active-background-color}*/;
 	-moz-box-shadow: 0 0 12px #006056 /*{a-active-background-color}*/;
 	box-shadow: 0 0 12px #006056 /*{a-active-background-color}*/;
+}
+.ui-focus {
+ -moz-box-shadow: none !important;
+ -webkit-box-shadow: none !important;
+ box-shadow: none !important;
 }
 /* Structure */
 /* Disabled

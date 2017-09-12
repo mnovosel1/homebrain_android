@@ -22,8 +22,8 @@ public class MainActivity extends AppCompatActivity {
         wb.getSettings().setJavaScriptEnabled(true);
         wb.getSettings().setAllowUniversalAccessFromFileURLs(true);
 
-        wb.loadUrl("file:///android_asset/index.html");
-        //wb.loadUrl("http://prez.bubulescu.org");
+        //wb.loadUrl("file:///android_asset/index.html");
+        wb.loadUrl("http://homebrain.bubulescu.org/app");
         wb.setWebViewClient(new WebViewClient());
     }
 

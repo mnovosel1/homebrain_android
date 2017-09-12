@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>HomeBrainApp</title>
 	<link rel="stylesheet" href="css/themes/default/jquery.mobile-1.4.5.min.css">
-	<link rel="stylesheet" href="themes/homebrain.min.css" />
+	<link rel="stylesheet" href="themes/homebrain.css" />
 	<link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
 	<script src="js/jquery.js"></script>
 	<script src="js/jquery.mobile-1.4.5.min.js"></script>
@@ -22,7 +22,7 @@
 <body>
 <div data-role="page" class="" data-quicklinks="true">
 
-	<div data-role="header" data-position="fixed">
+	<div data-role="header" data-id="header" data-position="fixed" data-tap-toggle="false">
 		<h1>HomeBrain</h1>
 	</div><!-- /header -->
 
@@ -38,7 +38,7 @@
 								<td colspan="2">Power</td>
 								<td style="text-align: right;">
                                     <form>
-                                        <input type="button" data-mini="true" data-enhanced="true" value="uključi">
+										<input type="button" data-enhanced="true" data-mini="true" value="uključi">
                                     </form>
                                 </td>
 							</tr>
@@ -74,19 +74,47 @@
 							<tr>
 								<td colspan="2">Power</td>
 								<td style="text-align: right;">
-							        <select name="hsrv-flip" id="hsrv-flip" data-role="slider" data-mini="true">
-							            <option value="0">Off</option>
-							            <option value="1">On</option>
-							        </select>
+									<form>
+										<input type="button" data-enhanced="true" data-mini="true" value="uključi">
+									</form>
 								</td>
+							</tr>
+						</table>
+					</li>
+					<li>
+						<table style="width: 100%;">
+							<tr>
+								<td colspan="2">Heading1</td>
+								<td style="text-align: right;">switch</td>
 							</tr>
 							<tr>
 								<td colspan="2">Heading2</td>
 								<td style="text-align: right;">switch</td>
 							</tr>
+						</table>
+					</li>
+				</ul>
+			</div>
+			<div data-role="collapsible">
+				<h3>MultiMedia</h3>
+				<ul data-role="listview" data-inset="false">
+					<li>
+						<table style="width: 100%;">
 							<tr>
-								<td colspan="2">Heading3</td>
-								<td style="text-align: right;">switch</td>
+								<td colspan="2">KODI</td>
+								<td style="text-align: right;">
+									<form>
+										<input type="button" data-enhanced="true" data-mini="true" value="uključi">
+									</form>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="2">Radio</td>
+								<td style="text-align: right;">
+									<form>
+										<input type="button" data-enhanced="true" data-mini="true" value="uključi">
+									</form>
+								</td>
 							</tr>
 						</table>
 					</li>
@@ -106,36 +134,6 @@
 			</div>
 		</div>
 		<div data-role="collapsibleset" data-mini="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
-			<div data-role="collapsible">
-				<h3>MultiMedia</h3>
-				<ul data-role="listview" data-inset="false">
-					<li>
-						<table style="width: 100%;">
-							<tr>
-								<td colspan="2">KODI</td>
-								<td style="text-align: right;">
-									        <select name="kodi-flip" id="kodi-flip" data-role="slider" data-mini="true">
-									            <option value="off">Off</option>
-									            <option value="on">On</option>
-									        </select>
-								</td>
-							</tr>
-						</table>
-					</li>
-					<li>
-						<table style="width: 100%;">
-							<tr>
-								<td colspan="2">Heading1</td>
-								<td style="text-align: right;">switch</td>
-							</tr>
-							<tr>
-								<td colspan="2">Heading2</td>
-								<td style="text-align: right;">switch</td>
-							</tr>
-						</table>
-					</li>
-				</ul>
-			</div>
 			<div data-role="collapsible">
 				<h3>Grijanje</h3>
 				<ul data-role="listview" data-inset="false">
@@ -171,8 +169,6 @@
 					</li>
 				</ul>
 			</div>
-		</div>
-		<div data-role="collapsibleset" data-mini="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
 			<div data-role="collapsible">
 				<h3>Vrt</h3>
 				<ul data-role="listview" data-inset="false">
@@ -202,11 +198,17 @@
 	</div>
 
 
-	<div data-role="footer" data-position="fixed" data-tap-toggle="false" class="jqm-footer" style="text-align: right;">
-		<p>Bubulescu.Org&nbsp;&nbsp;&nbsp;&nbsp;</p>
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false" style="text-align: right;">
+		<div data-role="navbar">
+			<ul>
+				<li><a href="index.html" class="ui-btn-active">Home</a></li>
+				<li><a href="daljinski.html" data-transition="slide">Daljinski</a></li>
+				<li><a href="grijanje.html" data-transition="slide">Grijanje</a></li>
+				<li><a href="vrt.html" data-transition="slide">Vrt</a></li>
+			</ul>
+		</div><!-- /navbar -->
+		<div class="ui-btn-active">Bubulescu.Org&nbsp;</div>
 	</div><!-- /footer -->
-
-
 </div><!-- /page -->
 
 </body>
