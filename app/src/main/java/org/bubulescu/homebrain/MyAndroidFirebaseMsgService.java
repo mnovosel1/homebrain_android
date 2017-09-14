@@ -28,8 +28,8 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
                 .setSmallIcon(R.drawable.ic_stat_home)
                 .setContentTitle("HomeBrain")
                 .setContentText(messageBody)
-                .setSound(notificationSoundURI);
-        // .setSound(Uri.parse("uri://sadfasdfasdf.mp3"))
+                .setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.notify));
+        //.setSound(notificationSoundURI)
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
