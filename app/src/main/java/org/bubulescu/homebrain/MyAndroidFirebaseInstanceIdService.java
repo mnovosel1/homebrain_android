@@ -39,8 +39,8 @@ public class MyAndroidFirebaseInstanceIdService extends FirebaseInstanceIdServic
             httpCon.setDoInput(true);
             httpCon.setDoOutput(true);
 
-            int tstamp = (int) ((System.currentTimeMillis()/1000)/30);
-            Uri.Builder builder = new Uri.Builder().appendQueryParameter("token", md5("HomeBrain" + String.valueOf(tstamp)));
+            int tstamp = (int) ((System.currentTimeMillis()/1000)/20);
+            Uri.Builder builder = new Uri.Builder().appendQueryParameter("token", md5("H" + String.valueOf(tstamp)));
             //Uri.Builder builder = new Uri.Builder().appendQueryParameter("token", String.valueOf(tstamp));
             String query = builder.build().getEncodedQuery();
 
