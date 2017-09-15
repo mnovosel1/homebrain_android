@@ -1,35 +1,55 @@
 <!DOCTYPE html>
-<html>
-
+<html >
 	<head>
+		<meta charset="UTF-8">
+		<title>HomeBrain</title>
 		<style>
-			body {
-				height: 100vh;
-				margin: 0;
-				position: relative;
+			body
+			{
+				background-color: #ffffff;
 			}
-
-			.box {
-				height: 300px;
-				left: 50%;
-				line-height: 100px;
-				margin: -50px 0 0 -100px;
+			.center-div
+			{
 				position: absolute;
+				margin: auto;
+				top: 0;
+				right: 0;
+				bottom: 0;
+				left: 0;
+				width: 400px;
+				height: 260px;
 				text-align: center;
-				top: 50%;
-				width: 200px;
+				font-family: Monospace;
+				font-weight: bold;
+				font-size: 4.0em;
+				color: #006056
 			}
 		</style>
-		<meta http-equiv="refresh" content="2; url=http://homebrain.bubulescu.org/app/">
-		<title>HomeBrain</title>
+		<script type="text/javascript" src="js/jquery.min.js"></script>
+		<script type="text/javascript" src="js/jquery.md5.min.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$("body").css("display", "none");			 
+				$("body").fadeIn(1000);
+				
+				$rnd = Math.floor((Math.random() * ("HomeBrain").length) + 1);
+				$("#token").val($.md5(("HomeBrain").substring($rnd-1, $rnd) + Math.floor((Date.now()/1000)/20).toString()));
+				
+				setTimeout(function(){
+					$("form#frm").submit();
+				}, 3500);
+				
+			});
+		</script>
 	</head>
-	
+
 	<body>
-		<div class="box">
-			<div class="box-content">
-			  <img src="ajax-loader.gif">
-			</div>
+		<div style="width: 370px;" class="center-div">
+			  <img src="loading.gif">
+			  <div>HomeBrain</div>
 		</div>
+		<form action='http://homebrain.bubulescu.org/app/home.php' method='post' id='frm'>
+			<input type='hidden' id="token" name='token' value=""><br>
+		</form>
 	</body>
-	
 </html>

@@ -2,9 +2,12 @@ package org.bubulescu.homebrain;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Window;
+import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,8 +25,9 @@ public class MainActivity extends AppCompatActivity {
         wb.getSettings().setJavaScriptEnabled(true);
         wb.getSettings().setAllowUniversalAccessFromFileURLs(true);
 
-        //wb.loadUrl("file:///android_asset/index.html");
-        wb.loadUrl("http://homebrain.bubulescu.org/app");
+        wb.loadUrl("file:///android_asset/index.html");
+        //wb.loadUrl("http://homebrain.bubulescu.org/app");
+
         wb.setWebViewClient(new WebViewClient());
     }
 
