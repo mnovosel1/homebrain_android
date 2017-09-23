@@ -22,12 +22,17 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
+<<<<<<< HEAD
+=======
+        //data message
+>>>>>>> origin/master
         msg = remoteMessage.getData().get("msg");
 
         //notification message
         if(msg == null || msg.trim().isEmpty())
         {
             msg = remoteMessage.getNotification().getBody();
+<<<<<<< HEAD
 
             Log.d(TAG, "From: " + remoteMessage.getFrom());
             Log.d(TAG, "Notification Message: " + msg);
@@ -39,6 +44,12 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
             Log.d(TAG, "DATA Message: " + msg);
         }
 
+=======
+        }
+
+        Log.d(TAG, "From: " + remoteMessage.getFrom());
+        Log.d(TAG, "Notification Message Body: " + msg);
+>>>>>>> origin/master
 
         //createNotification(msg);
 
