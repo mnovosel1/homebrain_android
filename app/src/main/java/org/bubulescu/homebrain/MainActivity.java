@@ -19,6 +19,17 @@ public class MainActivity extends AppCompatActivity {
 
     private WebView wb;
     private TextToSpeech tts;
+    public  Context currentActivity = null;
+
+    public Context getCurrentActivity(Context currentActivity)
+    {
+        return  currentActivity;
+    }
+
+    public void setCurrentActivity(Context currentActivity)
+    {
+        this.currentActivity = currentActivity;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -50,6 +61,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onResume()
+    {
+        setCurrentActivity(this);
+        super.onResume();
+    }
+
+    @Override
+    public void onPause()
+    {
+        setCurrentActivity(null);
+        super.onPause();
+    }
+
+    @Override
     public void onBackPressed() {
         if (wb.canGoBack()) {
             wb.goBack();
@@ -63,10 +88,7 @@ public class MainActivity extends AppCompatActivity {
         Context mContext;
 
         /** Instantiate the interface and set the context */
-        WebAppInterface(Context c)
-        {
-            mContext = c;
-        }
+        WebAppInterface(Context c) { mContext = c; }
 
         /** Show a toast from the web page */
         @JavascriptInterface
