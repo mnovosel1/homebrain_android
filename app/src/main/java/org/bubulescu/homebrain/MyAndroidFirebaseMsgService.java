@@ -22,12 +22,11 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
-        msg = remoteMessage.getData().get("msg");
-
         //notification message
-        if(msg == null || msg.trim().isEmpty())
+        if (remoteMessage.getNotification() != null)
         {
             msg = remoteMessage.getNotification().getBody();
+            createNotification(msg);
 
             Log.d(TAG, "From: " + remoteMessage.getFrom());
             Log.d(TAG, "Notification Message: " + msg);
@@ -35,18 +34,18 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
         //data message
         else
         {
+            msg = remoteMessage.getData().get("msg");
+
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                public void run() {
+                    Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+                }
+            });
+
             Log.d(TAG, "From: " + remoteMessage.getFrom());
             Log.d(TAG, "DATA Message: " + msg);
         }
-
-        //createNotification(msg);
-
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(new Runnable() {
-            public void run() {
-                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
-            }
-        });
     }
 
     private void createNotification(String messageBody) {
