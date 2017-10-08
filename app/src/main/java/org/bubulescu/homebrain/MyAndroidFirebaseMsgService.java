@@ -3,6 +3,7 @@ package org.bubulescu.homebrain;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
@@ -26,6 +27,7 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
     private String msgTitle;
     private String msgBody;
     private String msgData;
+    private int countRec;
 
     @Override
     public void onCreate() {
@@ -67,20 +69,27 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
             msgBody = remoteMessage.getData().get("msg");
             msgData = remoteMessage.getData().get("data");
 
+            createNotification(msgTitle, msgBody);
+            passMessageToActivity(msgData);
+
+            //update database
+            DatabaseHandler db = new DatabaseHandler(this);
+            String[] msgDataArray = msgData.split(":");
+            db.changeState(msgDataArray[0], Integer.parseInt(msgDataArray[1]), Integer.parseInt(msgDataArray[2]));
+
+            countRec = db.getCount();
+
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
                 public void run() {
-                    Toast.makeText(getApplicationContext(), msgTitle + ": " + msgBody, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getApplicationContext(), msgTitle + ": " + msgBody, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Br. zapisa: " + countRec, Toast.LENGTH_LONG).show();
                 }
             });
-
-            createNotification(msgTitle, msgBody);
-            passMessageToActivity(msgData);
 
             //Log.d(TAG, "From: " + remoteMessage.getFrom());
             //Log.d(TAG, "DATA Message: " + msgBody);
         }
-
     }
 
     private void createNotification(String messageBody) {

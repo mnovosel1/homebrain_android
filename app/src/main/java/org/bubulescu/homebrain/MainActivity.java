@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
             //if var exist only print or do some stuff
             if (arg1.hasExtra("message")) {
                 //do what you want to
-                wb.evaluateJavascript("speak('Hello World!');", null);
+                wb.evaluateJavascript("toast('Hello World!');", null);
                 System.out.println(arg1.getStringExtra("message"));
             }
         }
