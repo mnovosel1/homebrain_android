@@ -57,7 +57,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     "VALUES ('"+ timeStamp +"', '"+ stateBefore +"', '"+ state +"', "+ changedTo +");"
         );
 
-        db.execSQL("DELETE FROM changelog WHERE timestamp <= date('now', '-14 day');");
+        //db.execSQL("DELETE FROM changelog WHERE timestamp <= date('now', '-14 day');");
     }
 
     // Getting Count
