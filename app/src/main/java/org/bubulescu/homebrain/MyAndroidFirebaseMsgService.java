@@ -107,12 +107,19 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
             case "HomeBrain":
                 mNotificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.homebrain));
                 break;
+
             case "HomeServer":
                 mNotificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.homeserver));
                 break;
+
             case "KODI":
                 mNotificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.kodi));
                 break;
+
+            case "MPD":
+                mNotificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.mpd));
+                break;
+
             default:
                 mNotificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.notify));
         }
