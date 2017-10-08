@@ -1,7 +1,10 @@
 package org.bubulescu.homebrain;
 
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
@@ -19,22 +22,15 @@ public class MainActivity extends AppCompatActivity {
 
     private WebView wb;
     private TextToSpeech tts;
-    public  Context currentActivity = null;
-
-    public Context getCurrentActivity(Context currentActivity)
-    {
-        return  currentActivity;
-    }
-
-    public void setCurrentActivity(Context currentActivity)
-    {
-        this.currentActivity = currentActivity;
-    }
+    private MyReceiver myReceiver = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        registerReceiver();
+
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
@@ -59,19 +55,17 @@ public class MainActivity extends AppCompatActivity {
 
         wb.setWebViewClient(new WebViewClient());
     }
-
+    //When the activity resume, the receiver is going to register...
     @Override
-    public void onResume()
-    {
-        setCurrentActivity(this);
+    protected void onResume() {
         super.onResume();
+        registerReceiver();
     }
-
+    //when the activity stop, the receiver is going to unregister...
     @Override
-    public void onPause()
-    {
-        setCurrentActivity(null);
-        super.onPause();
+    protected void onStop() {
+        unregisterReceiver(myReceiver); //unregister my receiver...
+        super.onStop();
     }
 
     @Override
@@ -118,6 +112,34 @@ public class MainActivity extends AppCompatActivity {
         private void ttsGreater21(String text) {
             String utteranceId=this.hashCode() + "";
             tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId);
+        }
+    }
+
+    private void registerReceiver(){
+        if ( myReceiver == null )
+        {
+            myReceiver = new MyReceiver();
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(MyAndroidFirebaseMsgService.SENDMESAGGE);
+            registerReceiver(myReceiver, intentFilter);
+        }
+    }
+
+    // class of receiver, the magic is here...
+    private class MyReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context arg0, Intent arg1) {
+            //verify if the extra var exist
+            //System.out.println(arg1.hasExtra("message")); // true or false
+            //another example...
+            //System.out.println(arg1.getExtras().containsKey("message")); // true or false
+            //if var exist only print or do some stuff
+            if (arg1.hasExtra("message")) {
+                //do what you want to
+                wb.evaluateJavascript("speak('Hello World!');", null);
+                System.out.println(arg1.getStringExtra("message"));
+            }
         }
     }
 }
