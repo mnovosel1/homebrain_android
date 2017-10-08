@@ -53,10 +53,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String state = msgDataArray[2];
         Integer changedTo = Integer.parseInt(msgDataArray[3]);
 
-
         db.execSQL("INSERT INTO changelog (timestamp, statebefore, state, changedto) " +
                     "VALUES ('"+ timeStamp +"', '"+ stateBefore +"', '"+ state +"', "+ changedTo +");"
         );
+
+        db.execSQL("DELETE FROM changelog WHERE timestamp <= date('now', '-14 day');");
     }
 
     // Getting Count
