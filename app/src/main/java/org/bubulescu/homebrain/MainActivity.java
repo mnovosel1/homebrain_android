@@ -92,6 +92,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
+        public int getUpdate()
+        {
+
+        }
+
+        @JavascriptInterface
         public void speak (String toSpeak)
         {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
