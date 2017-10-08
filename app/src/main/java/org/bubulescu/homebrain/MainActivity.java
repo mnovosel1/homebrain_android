@@ -5,6 +5,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +16,9 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -92,9 +97,33 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
-        public int getUpdate()
-        {
+        public JSONObject getUpdate() throws JSONException {
+            // TODO getUpdates from database
+            DatabaseHandler dbh = new DatabaseHandler(mContext);
 
+            JSONObject ret = new JSONObject();
+
+            // Select All Query
+            String selectQuery = "SELECT timestamp, statebefore, state, changedto FROM changelog";
+
+            SQLiteDatabase db = dbh.getWritableDatabase();
+            Cursor cursor = db.rawQuery(selectQuery, null);
+            int rowNum = 0;
+
+            // looping through all rows and adding to list
+            if (cursor.moveToFirst()) {
+                do {
+                    JSONObject row = new JSONObject();
+                    row.put("timestamp", cursor.getString(0));
+                    row.put("statebefore", cursor.getString(1));
+                    row.put("state", cursor.getString(2));
+                    row.put("changedto", cursor.getString(3));
+
+                    ret.put(Integer.toString(rowNum++), row);
+                } while (cursor.moveToNext());
+            }
+
+            return  ret;
         }
 
         @JavascriptInterface
@@ -143,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
             //if var exist only print or do some stuff
             if (arg1.hasExtra("message")) {
                 //do what you want to
-                wb.evaluateJavascript("toast('Hello World!');", null);
+                //wb.evaluateJavascript("toast('Hello World!');", null);
                 System.out.println(arg1.getStringExtra("message"));
             }
         }

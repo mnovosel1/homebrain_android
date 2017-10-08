@@ -3,15 +3,11 @@ package org.bubulescu.homebrain;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
-import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -65,17 +61,20 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
         //data message
         else
         {
+            DatabaseHandler db = new DatabaseHandler(this);
             msgTitle = remoteMessage.getData().get("title");
             msgBody = remoteMessage.getData().get("msg");
-            msgData = remoteMessage.getData().get("data");
 
             createNotification(msgTitle, msgBody);
-            passMessageToActivity(msgData);
 
-            //update database
-            DatabaseHandler db = new DatabaseHandler(this);
-            String[] msgDataArray = msgData.split(":");
-            db.changeState(msgDataArray[0], Integer.parseInt(msgDataArray[1]), Integer.parseInt(msgDataArray[2]));
+            if ( remoteMessage.getData().get("data") != null )
+            {
+                msgData = remoteMessage.getData().get("data");
+                passMessageToActivity(msgData);
+
+                String[] msgDataArray = msgData.split("|");
+                db.updateDb(msgDataArray);
+            }
 
             countRec = db.getCount();
 
@@ -98,13 +97,25 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
 
     private void createNotification(String messageTitle, String messageBody) {
 
-        //Uri notificationSoundURI = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder mNotificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_stat_home)
                 .setContentTitle(messageTitle)
-                .setContentText(messageBody)
-                .setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.notify));
-        //.setSound(notificationSoundURI)
+                .setContentText(messageBody);
+
+        switch (messageTitle)
+        {
+            case "HomeBrain":
+                mNotificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.homebrain));
+                break;
+            case "HomeServer":
+                mNotificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.homeserver));
+                break;
+            case "KODI":
+                mNotificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.kodi));
+                break;
+            default:
+                mNotificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.notify));
+        }
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

@@ -23,86 +23,47 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     // Creating Tables
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createStatesTable = "" +
-                "CREATE TABLE states (\n" +
-                "            name varchar(75) PRIMARY KEY,\n" +
-                "            auto int(1) NOT NULL DEFAULT 1,\n" +
-                "            active int(1) NOT NULL DEFAULT 0\n" +
-                "        );";
 
         String createChangelogTable = "" +
                 "CREATE TABLE changelog (\n" +
                 "            timestamp DATETIME,\n" +
                 "            statebefore varchar(30) NOT NULL,\n" +
-                "            stateid int(11) NOT NULL,\n" +
-                "            changedto int(1) NOT NULL,\n" +
-                "            PRIMARY KEY(statebefore, stateid, changedto)\n" +
+                "            state varchar(50) NOT NULL,\n" +
+                "            changedto int(1) NOT NULL\n" +
                 "        );";
 
-        String createChangelogTrigger = "" +
-                "CREATE TRIGGER changelog_trigg\n" +
-                "            BEFORE UPDATE ON states " +
-                "            FOR EACH ROW\n" +
-                "            WHEN OLD.active <> NEW.active\n" +
-                "            BEGIN\n" +
-                "                INSERT OR REPLACE INTO changelog (timestamp, statebefore, stateid, changedto)\n" +
-                "                VALUES (\n" +
-                "                            datetime('now','localtime'),\n" +
-                "                            (SELECT group_concat(active, '') FROM states ORDER BY rowid ASC),\n" +
-                "                            NEW.rowid,\n" +
-                "                            NEW.active\n" +
-                "                        );\n" +
-                "                DELETE FROM changelog WHERE timestamp <= date('now', '-7 day');\n" +
-                "            END;\n";
-
-        try {
-            db.execSQL(createStatesTable);
-        }
-        catch(SQLException e){
-            System.out.println(e.getMessage());
-        }
-        try {
             db.execSQL(createChangelogTable);
-        }
-        catch(SQLException e){
-            System.out.println(e.getMessage());
-        }
-        try {
-            db.execSQL(createChangelogTrigger);
-        }
-        catch(SQLException e){
-            System.out.println(e.getMessage());
-        }
     }
  
     // Upgrading database
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older tables and trigger if existed
-        db.execSQL("DROP TRIGGER IF EXISTS changelog_trigg");
         db.execSQL("DROP TABLE IF EXISTS changelog");
-        db.execSQL("DROP TABLE IF EXISTS states");
  
         // Create tables again
         onCreate(db);
     }
 
-    public void changeState(String state, int auto, int active) {
+    public void updateDb(String[] msgDataArray) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        int noActive = 0;
-        if ( active == 0 ) noActive = 1;
+        String timeStamp = msgDataArray[0];
+        String stateBefore = msgDataArray[1];
+        String state = msgDataArray[2];
+        Integer changedTo = Integer.parseInt(msgDataArray[3]);
 
-        db.execSQL("INSERT OR REPLACE INTO states (name, auto, active) VALUES ('"+ state +"', "+ auto +", "+ noActive +")");
-        db.execSQL("UPDATE states SET active = " + active + " WHERE name = '"+ state +"'");
+
+        db.execSQL("INSERT INTO changelog (timestamp, statebefore, state, changedto) " +
+                    "VALUES ('"+ timeStamp +"', '"+ stateBefore +"', '"+ state +"', "+ changedTo +");"
+        );
     }
 
     // Getting Count
     public int getCount() {
 
-        String countQuery = "SELECT * FROM changelog";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(countQuery, null);
+        Cursor cursor = db.rawQuery("SELECT * FROM changelog", null);
 
         int retCount = cursor.getCount();
         cursor.close();
