@@ -15,11 +15,13 @@ import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -39,7 +41,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-import android.os.AsyncTask;
+import android.view.LayoutInflater;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        final Context mContext = this;
         registerReceiver();
 
         super.onCreate(savedInstanceState);
@@ -104,17 +107,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    //When the activity resume, the receiver is going to register...
-    @Override
-    protected void onResume() {
-        super.onResume();
-        registerReceiver();
-    }
-    //when the activity stop, the receiver is going to unregister...
-    @Override
-    protected void onStop() {
-        unregisterReceiver(myReceiver); //unregister my receiver...
-        super.onStop();
+
+    protected void onDestroy()
+    {
+        unregisterReceiver();
+        super.onDestroy();
     }
 
     @Override
@@ -205,6 +202,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void unregisterReceiver()
+    {
+        if ( myReceiver != null )
+            unregisterReceiver(myReceiver);
+    }
+
     // class of receiver, the magic is here...
     private class MyReceiver extends BroadcastReceiver {
 
@@ -223,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (arg1.hasExtra("token"))
             {
+
                 final String token = arg1.getStringExtra("token");
                 final String email = "mail";
 
