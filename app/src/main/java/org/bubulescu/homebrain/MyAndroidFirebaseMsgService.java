@@ -17,34 +17,16 @@ import com.google.firebase.messaging.RemoteMessage;
 
 public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
 {
-    final static String SENDMESAGGE = "passMessage";
-
-    public static Boolean serviceStatus = false;
-
     private static final String TAG = "MyAndroidFCMService";
     private String msgTitle;
     private String msgBody;
     private String msgData;
     private int countRec;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        serviceStatus=true;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        //passMessageToActivity("The service is finished, This is going to be more cooler than the heart of your ex...");
-        //System.out.println("onDestroy");
-        serviceStatus=false;
-    }
-
     private void passMessageToActivity(String message){
         Intent intent = new Intent();
-        intent.setAction(SENDMESAGGE);
-        intent.putExtra("message",message);
+        intent.setAction(MainActivity.SENDMESAGGE);
+        intent.putExtra("message", message);
         sendBroadcast(intent);
     }
 

@@ -1,31 +1,54 @@
 package org.bubulescu.homebrain;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Build;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+import android.os.AsyncTask;
 
 public class MainActivity extends AppCompatActivity {
 
-    private WebView wb;
+    private static final String TAG = "MainActivityLOG";
+    final static String SENDMESAGGE = "passMessage";
+
+    private WebView webApp;
+    private ImageView imgLoading;
+    private boolean ShowImageSplash = true;
     private TextToSpeech tts;
     private MyReceiver myReceiver = null;
 
@@ -35,8 +58,42 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver();
 
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
+
+        imgLoading = (ImageView)findViewById(R.id.imgLoader);
+
+        webApp = (WebView) findViewById(R.id.webView);
+        webApp.addJavascriptInterface(new WebAppInterface(this), "Android");
+
+        webApp.getSettings().setLoadWithOverviewMode(true);
+        webApp.getSettings().setUseWideViewPort(true);
+        webApp.getSettings().setJavaScriptEnabled(true);
+        webApp.getSettings().setAllowUniversalAccessFromFileURLs(true);
+
+
+        webApp.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                //hide loading image
+                //show webview
+                if (ShowImageSplash)
+                {
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    //hide loading image
+                    findViewById(R.id.imgLoader).setVisibility(View.GONE);
+                    ShowImageSplash = false;
+                }
+                //show webview
+                findViewById(R.id.webView).setVisibility(View.VISIBLE);
+            }
+        });
+
+        //webApp.loadUrl("file:///android_asset/index.html");
+        webApp.loadUrl("http://homebrain.bubulescu.org/app/home.php");
 
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
@@ -46,19 +103,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        wb = (WebView) findViewById(R.id.webView);
-        wb.addJavascriptInterface(new WebAppInterface(this), "Android");
-        wb.getSettings().setLoadWithOverviewMode(true);
-        wb.getSettings().setUseWideViewPort(true);
-
-        wb.getSettings().setJavaScriptEnabled(true);
-        wb.getSettings().setAllowUniversalAccessFromFileURLs(true);
-
-        wb.loadUrl("file:///android_asset/index.html");
-        //wb.loadUrl("http://homebrain.bubulescu.org/app");
-
-        wb.setWebViewClient(new WebViewClient());
     }
     //When the activity resume, the receiver is going to register...
     @Override
@@ -75,12 +119,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (wb.canGoBack()) {
-            wb.goBack();
+        if (webApp.canGoBack()) {
+            webApp.goBack();
         } else {
             super.onBackPressed();
         }
     }
+
 
     public class WebAppInterface
     {
@@ -155,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
         {
             myReceiver = new MyReceiver();
             IntentFilter intentFilter = new IntentFilter();
-            intentFilter.addAction(MyAndroidFirebaseMsgService.SENDMESAGGE);
+            intentFilter.addAction(SENDMESAGGE);
             registerReceiver(myReceiver, intentFilter);
         }
     }
@@ -164,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
     private class MyReceiver extends BroadcastReceiver {
 
         @Override
-        public void onReceive(Context arg0, Intent arg1) {
+        public void onReceive(Context context, Intent arg1) {
             //verify if the extra var exist
             //System.out.println(arg1.hasExtra("message")); // true or false
             //another example...
@@ -172,9 +217,69 @@ public class MainActivity extends AppCompatActivity {
             //if var exist only print or do some stuff
             if (arg1.hasExtra("message")) {
                 //do what you want to
-                //wb.evaluateJavascript("toast('Hello World!');", null);
+                //webApp.evaluateJavascript("toast('Hello World!');", null);
                 System.out.println(arg1.getStringExtra("message"));
             }
+
+            if (arg1.hasExtra("token"))
+            {
+                final String token = arg1.getStringExtra("token");
+                final String email = "mail";
+
+                new Thread(new Runnable() { @Override public void run() {
+
+                    try {
+                        URL url = new URL("http://homebrain.bubulescu.org/api/fcm/reg/" + token + "/" + email);
+                        HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+                        httpCon.setReadTimeout(10000);
+                        httpCon.setConnectTimeout(15000);
+                        httpCon.setRequestMethod("POST");
+                        httpCon.setDoInput(true);
+                        httpCon.setDoOutput(true);
+
+                        int tstamp = (int) ((System.currentTimeMillis()/1000)/20);
+                        Uri.Builder builder = new Uri.Builder().appendQueryParameter("token", md5("H" + String.valueOf(tstamp)));
+                        String query = builder.build().getEncodedQuery();
+
+                        OutputStream os = httpCon.getOutputStream();
+
+                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+                        writer.write(query);
+                        writer.flush();
+                        writer.close();
+                        os.close();
+
+                        httpCon.getInputStream();
+
+                        Log.d(TAG, "Registered: http://homebrain.bubulescu.org/api/fcm/reg/" + token + "/" + email);
+                    }
+                    catch (MalformedURLException ex) {
+                        Log.d(TAG, Log.getStackTraceString(ex));
+                    }
+                    catch (IOException ex) {
+                        Log.d(TAG, Log.getStackTraceString(ex));
+                    }
+                } }).start();
+            }
+        }
+
+        @Nullable
+        private String md5(String in) {
+            MessageDigest digest;
+            try {
+                digest = MessageDigest.getInstance("MD5");
+                digest.reset();
+                digest.update(in.getBytes());
+                byte[] a = digest.digest();
+                int len = a.length;
+                StringBuilder sb = new StringBuilder(len << 1);
+                for (int i = 0; i < len; i++) {
+                    sb.append(Character.forDigit((a[i] & 0xf0) >> 4, 16));
+                    sb.append(Character.forDigit(a[i] & 0x0f, 16));
+                }
+                return sb.toString();
+            } catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
+            return null;
         }
     }
 }
