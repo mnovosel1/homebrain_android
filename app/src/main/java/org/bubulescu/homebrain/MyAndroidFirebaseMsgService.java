@@ -56,7 +56,9 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
                 msgData = remoteMessage.getData().get("data");
                 passMessageToActivity(msgData);
 
-                String[] msgDataArray = msgData.split("|");
+                String[] msgDataArray = msgData.split("\\|");
+                //String[] msgDataArray = {"first", "second"};
+                Log.d(TAG, "msgDataArray.length = " + msgDataArray.length);
                 db.updateDb(msgDataArray);
             }
 

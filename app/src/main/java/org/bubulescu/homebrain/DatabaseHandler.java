@@ -6,8 +6,10 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
- 
+import android.util.Log;
+
 public class DatabaseHandler extends SQLiteOpenHelper {
+    private static final String TAG = "MyDatabaseHandler";
 
     // Database Version
     private static final int DATABASE_VERSION = 1;
@@ -48,16 +50,26 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void updateDb(String[] msgDataArray) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        String timeStamp = msgDataArray[0];
-        String stateBefore = msgDataArray[1];
-        String state = msgDataArray[2];
-        Integer changedTo = Integer.parseInt(msgDataArray[3]);
+        if ( msgDataArray.length == 4 )
+        {
+            try {
+                String timeStamp = msgDataArray[0];
+                String stateBefore = msgDataArray[1];
+                String state = msgDataArray[2];
+                Integer changedTo = Integer.parseInt(msgDataArray[3]);
 
-        db.execSQL("INSERT INTO changelog (timestamp, statebefore, state, changedto) " +
-                    "VALUES ('"+ timeStamp +"', '"+ stateBefore +"', '"+ state +"', "+ changedTo +");"
-        );
+                db.execSQL("INSERT INTO changelog (timestamp, statebefore, state, changedto) " +
+                        "VALUES ('"+ timeStamp +"', '"+ stateBefore +"', '"+ state +"', "+ changedTo +");"
+                );
+            }
+            catch (NumberFormatException e)
+            {
+                Log.d(TAG, "NumberFormatException: " + e);
+            }
 
-        //db.execSQL("DELETE FROM changelog WHERE timestamp <= date('now', '-14 day');");
+        }
+
+        db.execSQL("DELETE FROM changelog WHERE timestamp <= date('now', '-14 day');");
     }
 
     // Getting Count

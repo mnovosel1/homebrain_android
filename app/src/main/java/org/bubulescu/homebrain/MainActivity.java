@@ -114,15 +114,6 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    @Override
-    public void onBackPressed() {
-        if (webApp.canGoBack()) {
-            webApp.goBack();
-        } else {
-            super.onBackPressed();
-        }
-    }
-
 
     public class WebAppInterface
     {
