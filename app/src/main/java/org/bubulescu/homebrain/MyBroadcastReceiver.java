@@ -1,5 +1,6 @@
 package org.bubulescu.homebrain;
 
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +40,8 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent arg1) {
+        HttpReqHelper httpReq = new HttpReqHelper();
+
         //verify if the extra var exist
         //System.out.println(arg1.hasExtra("message")); // true or false
         //another example...
@@ -52,63 +55,11 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
 
         if (arg1.hasExtra("token"))
         {
-
             final String token = arg1.getStringExtra("token");
-            final String email = "mail";
+            final String email = "me@mail.com";
 
-            new Thread(new Runnable() { @Override public void run() {
-
-                try {
-                    URL url = new URL("http://homebrain.bubulescu.org/api/fcm/reg/" + token + "/" + email);
-                    HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
-                    httpCon.setReadTimeout(10000);
-                    httpCon.setConnectTimeout(15000);
-                    httpCon.setRequestMethod("POST");
-                    httpCon.setDoInput(true);
-                    httpCon.setDoOutput(true);
-
-                    int tstamp = (int) ((System.currentTimeMillis()/1000)/20);
-                    Uri.Builder builder = new Uri.Builder().appendQueryParameter("token", md5("H" + String.valueOf(tstamp)));
-                    String query = builder.build().getEncodedQuery();
-
-                    OutputStream os = httpCon.getOutputStream();
-
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-                    writer.write(query);
-                    writer.flush();
-                    writer.close();
-                    os.close();
-
-                    httpCon.getInputStream();
-
-                    Log.d(TAG, "Registered: http://homebrain.bubulescu.org/api/fcm/reg/" + token + "/" + email);
-                }
-                catch (MalformedURLException ex) {
-                    Log.d(TAG, Log.getStackTraceString(ex));
-                }
-                catch (IOException ex) {
-                    Log.d(TAG, Log.getStackTraceString(ex));
-                }
-            } }).start();
+            httpReq.sendReq("fcm/reg/" + email + "____" + token);
         }
     }
 
-    @Nullable
-    private String md5(String in) {
-        MessageDigest digest;
-        try {
-            digest = MessageDigest.getInstance("MD5");
-            digest.reset();
-            digest.update(in.getBytes());
-            byte[] a = digest.digest();
-            int len = a.length;
-            StringBuilder sb = new StringBuilder(len << 1);
-            for (int i = 0; i < len; i++) {
-                sb.append(Character.forDigit((a[i] & 0xf0) >> 4, 16));
-                sb.append(Character.forDigit(a[i] & 0x0f, 16));
-            }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
-        return null;
-    }
 }
