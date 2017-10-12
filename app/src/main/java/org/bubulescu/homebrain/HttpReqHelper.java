@@ -19,7 +19,7 @@ import java.net.InetSocketAddress;
 
 public class HttpReqHelper {
 
-    private static final String TAG = "HttpReqHelperLOG";
+    private static final String TAG = "HttpReqHelper_LOG";
 
     private String baseUrlAway = "homebrain.bubulescu.org";
     private String baseUrlHome = "10.10.10.128";

@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivityLOG";
+    private static final String TAG = "MainActivity_LOG";
     final static String SENDMESAGGE = "passMessage";
 
     private WebView webApp;
@@ -28,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     {
         final Context mContext = this;
         super.onCreate(savedInstanceState);
+
+        Log.d(TAG, "Živ sam..");
 
         // registering MyBroadcastReceiver
         IntentFilter intentFilter = new IntentFilter();

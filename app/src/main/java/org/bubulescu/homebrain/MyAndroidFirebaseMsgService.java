@@ -17,7 +17,7 @@ import com.google.firebase.messaging.RemoteMessage;
 
 public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
 {
-    private static final String TAG = "MyAndroidFCMService";
+    private static final String TAG = "FCM_LOG";
     private String msgTitle;
     private String msgBody;
     private String msgData;
