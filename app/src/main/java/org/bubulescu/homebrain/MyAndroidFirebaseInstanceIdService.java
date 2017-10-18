@@ -16,13 +16,14 @@ public class MyAndroidFirebaseInstanceIdService extends FirebaseInstanceIdServic
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
 
         Log.d(TAG, "TokenRefreshed: " + refreshedToken);
-        registerToken(refreshedToken);
+        //registerToken(refreshedToken);
     }
-
+    /*
     private void registerToken(String token){
         Intent intent = new Intent();
         intent.setAction(MainActivity.SENDMESAGGE);
         intent.putExtra("token", token);
         sendBroadcast(intent);
     }
+    */
 }

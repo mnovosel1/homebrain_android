@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
-    private static final String TAG = "MyDatabaseHandler";
+    private static final String TAG = "MyDatabaseHandler_LOG_";
 
     // Database Version
     private static final int DATABASE_VERSION = 1;

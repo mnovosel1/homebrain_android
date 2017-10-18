@@ -19,10 +19,10 @@ import java.net.InetSocketAddress;
 
 public class HttpReqHelper {
 
-    private static final String TAG = "HttpReqHelper_LOG";
+    private static final String TAG = "HttpReqHelper_LOG_";
 
-    private String baseUrlAway = "homebrain.bubulescu.org";
-    private String baseUrlHome = "10.10.10.128";
+    private String baseUrlAway = "hbr.bubulescu.org";
+    private String baseUrlHome = "10.10.10.10";
     private String baseUrl;
 
     public void sendReq(final String arguments)
@@ -30,7 +30,9 @@ public class HttpReqHelper {
         new Thread(new Runnable() { @Override public void run() {
 
             baseUrl = "http://" + baseUrlHome + "/api/";
-            if ( !isLive(baseUrlHome, 80, 64) ) baseUrl = "http://" + baseUrlAway + "/api/";
+            if ( isLive(baseUrlHome, 9343, 128) ) baseUrl = "https://" + baseUrlAway + ":9343/api/";
+
+            Log.d(TAG, baseUrl);
 
             try {
                 URL url = new URL(baseUrl + arguments);
