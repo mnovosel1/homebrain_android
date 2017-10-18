@@ -29,7 +29,7 @@
         android:layout_alignParentEnd="true"
         android:hint="E-mail"
         android:inputType="textEmailAddress"
-        android:imeOptions="actionGo"
+        android:imeOptions="actionDone"
         android:maxLines="1"
         />
 
@@ -40,6 +40,7 @@
         android:id="@+id/button"
         android:layout_below="@+id/email"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp" />
+        android:layout_marginTop="50dp"
+        />
 
 </RelativeLayout>

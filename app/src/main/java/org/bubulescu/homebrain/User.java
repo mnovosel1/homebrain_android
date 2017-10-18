@@ -45,7 +45,7 @@ public class User {
         httpReq.sendReq("fcm/reg/" + email + MainActivity.DELIMITER + token);
 
         registered = true;
-        Toast.makeText(mContext,"CODE je mailan na: " + email, Toast.LENGTH_LONG).show();
+        Toast.makeText(mContext,"CODE će biti mailan na: " + email, Toast.LENGTH_LONG).show();
     }
 
     public void verify(String code)
@@ -61,5 +61,11 @@ public class User {
 
         verified = true;
         Toast.makeText(mContext,"CODE OK", Toast.LENGTH_LONG).show();
+    }
+
+    public String email()
+    {
+        SharedPreferences configs = mContext.getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE);
+        return configs.getString("email", null);
     }
 }

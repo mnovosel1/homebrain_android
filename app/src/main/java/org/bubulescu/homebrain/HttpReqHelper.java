@@ -32,8 +32,6 @@ public class HttpReqHelper {
             baseUrl = "http://" + baseUrlHome + "/api/";
             if ( isLive(baseUrlHome, 9343, 128) ) baseUrl = "https://" + baseUrlAway + ":9343/api/";
 
-            Log.d(TAG, baseUrl);
-
             try {
                 URL url = new URL(baseUrl + arguments);
                 HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();

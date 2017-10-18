@@ -66,31 +66,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.email_input);
 
         emailInput = (EditText)findViewById(R.id.email);
-        emailInput.setImeActionLabel("OK", KeyEvent.KEYCODE_ENTER);
-        emailInput.setOnEditorActionListener(new TextView.OnEditorActionListener()
-        {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId,
-                                          KeyEvent event)
-            {
-                boolean handled = false;
-                if (actionId == KeyEvent.KEYCODE_ENTER)
-                {
-                    user.register(emailInput.getText().toString());
-                    showCodeInput();
-
-                    handled = true;
-                }
-                return handled;
-            }
-        });
 
         Button prijaviBtn = (Button)findViewById(R.id.button);
         prijaviBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v)
             {
-                user.register(emailInput.getText().toString());
+                String email = emailInput.getText().toString();
+                user.register(email);
                 showCodeInput();
             }
         });
@@ -101,23 +84,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.code_input);
 
         codeInput = (EditText)findViewById(R.id.code);
-        codeInput.setImeActionLabel("OK", KeyEvent.KEYCODE_ENTER);
-        codeInput.setOnEditorActionListener(new TextView.OnEditorActionListener()
-        {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
-            {
-                boolean handled = false;
-                if (actionId == KeyEvent.KEYCODE_ENTER)
-                {
-                    user.verify(codeInput.getText().toString());
-                    showMain();
-                    handled = true;
-                }
-                return handled;
-            }
-        });
-
+        TextView notice = (TextView)findViewById(R.id.textView2);
+        notice.setText("CODE je mailan na: " + user.email() + ".");
         Button codeBtn = (Button)findViewById(R.id.button);
         codeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
