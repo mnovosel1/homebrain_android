@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="25dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="25dp"
     android:paddingRight="25dp"
     android:paddingTop="25dp"
-    android:paddingBottom="25dp" tools:context=".MainActivity">
+    android:paddingBottom="25dp"
+    tools:context=".MainActivity">
 
     <TextView
         android:layout_width="wrap_content"
@@ -14,8 +17,7 @@
         android:layout_marginTop="67dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:textSize="30dp"
-        />
+        android:textSize="30dp" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -30,8 +32,7 @@
         android:hint="E-mail"
         android:inputType="textEmailAddress"
         android:imeOptions="actionDone"
-        android:maxLines="1"
-        />
+        android:maxLines="1" />
 
     <Button
         android:layout_width="wrap_content"
@@ -40,7 +41,6 @@
         android:id="@+id/button"
         android:layout_below="@+id/email"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
-        />
+        android:layout_marginTop="50dp" />
 
 </RelativeLayout>

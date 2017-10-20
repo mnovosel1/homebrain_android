@@ -2,9 +2,8 @@ package org.bubulescu.homebrain;
 
 import android.content.Context;
 import android.content.IntentFilter;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.KeyEvent;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -35,23 +34,17 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         final Context mContext = this;
         super.onCreate(savedInstanceState);
 
         user = new User(this);
 
-        if ( !user.isRegistered() )
-        {
+        if (!user.isRegistered()) {
             showEmailInput();
-        }
-        else if ( !user.isVerified() )
-        {
+        } else if (!user.isVerified()) {
             showCodeInput();
-        }
-            else
-        {
+        } else {
             // registering MyBroadcastReceiver
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(SENDMESAGGE);
@@ -61,17 +54,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    protected void showEmailInput()
-    {
+    protected void showEmailInput() {
         setContentView(R.layout.email_input);
 
-        emailInput = (EditText)findViewById(R.id.email);
+        emailInput = (EditText) findViewById(R.id.email);
 
-        Button prijaviBtn = (Button)findViewById(R.id.button);
+        Button prijaviBtn = (Button) findViewById(R.id.button);
         prijaviBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 String email = emailInput.getText().toString();
                 user.register(email);
                 showCodeInput();
@@ -79,26 +70,23 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    protected void showCodeInput()
-    {
+    protected void showCodeInput() {
         setContentView(R.layout.code_input);
 
-        codeInput = (EditText)findViewById(R.id.code);
-        TextView notice = (TextView)findViewById(R.id.textView2);
+        codeInput = (EditText) findViewById(R.id.code);
+        TextView notice = (TextView) findViewById(R.id.textView2);
         notice.setText("CODE je mailan na: " + user.email() + ".");
-        Button codeBtn = (Button)findViewById(R.id.button);
+        Button codeBtn = (Button) findViewById(R.id.button);
         codeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 user.verify(codeInput.getText().toString());
                 showMain();
             }
         });
     }
 
-    protected void showMain()
-    {
+    protected void showMain() {
         setContentView(R.layout.activity_main);
 
         webAppLoading = (WebView) findViewById(R.id.webViewLoading);
@@ -118,8 +106,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
 
-                if (ShowImageSplash)
-                {
+                if (ShowImageSplash) {
                     try {
                         TimeUnit.SECONDS.sleep(5);
                     } catch (InterruptedException e) {
@@ -137,13 +124,12 @@ public class MainActivity extends AppCompatActivity {
         //webApp.loadDataWithBaseURL();
         //webApp.loadUrl("http://homebrain.bubulescu.org/app/home.php");
 
-        //webApp.loadUrl("file:///android_asset/index.html");
-        webApp.loadUrl("http://homebrain.bubulescu.org/app/home.php");
+        webApp.loadUrl("file:///android_asset/index.html");
+        //webApp.loadUrl("http://homebrain.bubulescu.org/app/home.php");
     }
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(myBroadcastReceiver);
     }

@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,13 +14,19 @@ import org.json.JSONObject;
 public class WebAppInterface {
 
     Context mContext;
-    /** Instantiate the interface and set the context */
-    WebAppInterface(Context c) { mContext = c; }
 
-    /** Show a toast from the web page */
+    /**
+     * Instantiate the interface and set the context
+     */
+    WebAppInterface(Context c) {
+        mContext = c;
+    }
+
+    /**
+     * Show a toast from the web page
+     */
     @JavascriptInterface
-    public void toast(String toast)
-    {
+    public void toast(String toast) {
         Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show();
     }
 
@@ -49,6 +56,6 @@ public class WebAppInterface {
                 ret.put(Integer.toString(rowNum++), row);
             } while (cursor.moveToNext());
         }
-        return  ret;
+        return ret;
     }
 }

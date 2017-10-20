@@ -9,13 +9,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
-import java.net.Socket;
-import java.net.InetSocketAddress;
 
 public class HttpReqHelper {
 
@@ -25,51 +25,51 @@ public class HttpReqHelper {
     private String baseUrlHome = "10.10.10.10";
     private String baseUrl;
 
-    public void sendReq(final String arguments)
-    {
-        new Thread(new Runnable() { @Override public void run() {
+    public void sendReq(final String arguments) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-            baseUrl = "http://" + baseUrlHome + "/api/";
-            if ( isLive(baseUrlHome, 9343, 128) ) baseUrl = "https://" + baseUrlAway + ":9343/api/";
+                baseUrl = "http://" + baseUrlHome + "/api/";
+                if (isLive(baseUrlHome, 9343, 128))
+                    baseUrl = "https://" + baseUrlAway + ":9343/api/";
 
-            try {
-                URL url = new URL(baseUrl + arguments);
-                HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
-                httpCon.setReadTimeout(10000);
-                httpCon.setConnectTimeout(15000);
-                httpCon.setRequestMethod("POST");
-                httpCon.setDoInput(true);
-                httpCon.setDoOutput(true);
+                try {
+                    URL url = new URL(baseUrl + arguments);
+                    HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+                    httpCon.setReadTimeout(10000);
+                    httpCon.setConnectTimeout(15000);
+                    httpCon.setRequestMethod("POST");
+                    httpCon.setDoInput(true);
+                    httpCon.setDoOutput(true);
 
-                Uri.Builder builder = new Uri.Builder().appendQueryParameter("token", getToken());
-                String query = builder.build().getEncodedQuery();
+                    Uri.Builder builder = new Uri.Builder().appendQueryParameter("token", getToken());
+                    String query = builder.build().getEncodedQuery();
 
-                OutputStream os = httpCon.getOutputStream();
+                    OutputStream os = httpCon.getOutputStream();
 
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-                writer.write(query);
-                writer.flush();
-                writer.close();
-                os.close();
+                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+                    writer.write(query);
+                    writer.flush();
+                    writer.close();
+                    os.close();
 
-                httpCon.getInputStream();
+                    httpCon.getInputStream();
 
-                Log.d(TAG, "HttpResponse: " + httpCon.getResponseMessage()+ " HttpRequested: " + baseUrl + arguments);
+                    Log.d(TAG, "HttpResponse: " + httpCon.getResponseMessage() + " HttpRequested: " + baseUrl + arguments);
+                } catch (MalformedURLException ex) {
+                    Log.d(TAG, Log.getStackTraceString(ex));
+                } catch (IOException ex) {
+                    Log.d(TAG, Log.getStackTraceString(ex));
+                }
             }
-            catch (MalformedURLException ex) {
-                Log.d(TAG, Log.getStackTraceString(ex));
-            }
-            catch (IOException ex) {
-                Log.d(TAG, Log.getStackTraceString(ex));
-            }
-        } }).start();
+        }).start();
         /*
         */
     }
 
-    private String getToken()
-    {
-        int tstamp = (int) ((System.currentTimeMillis()/1000)/20);
+    private String getToken() {
+        int tstamp = (int) ((System.currentTimeMillis() / 1000) / 20);
         String s = "HomeBrain";
         Random random = new Random();
         String letter = String.valueOf(s.charAt(random.nextInt(s.length())));
@@ -92,7 +92,9 @@ public class HttpReqHelper {
                 sb.append(Character.forDigit(a[i] & 0x0f, 16));
             }
             return sb.toString();
-        } catch (NoSuchAlgorithmException e) { e.printStackTrace(); }
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 

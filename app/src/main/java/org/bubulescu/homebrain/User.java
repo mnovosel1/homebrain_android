@@ -2,7 +2,6 @@ package org.bubulescu.homebrain;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -16,24 +15,23 @@ public class User {
     private boolean verified = false;
     private Context mContext;
 
-    public User(Context context)
-    {
+    public User(Context context) {
         mContext = context;
 
         SharedPreferences configs = mContext.getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE);
-        if ( configs.getString("token", null) != null ) registered = true;
-        if ( configs.getBoolean("verified", false) != false ) verified = true;
+        if (configs.getString("token", null) != null) registered = true;
+        if (configs.getBoolean("verified", false) != false) verified = true;
     }
 
-    public boolean isRegistered()
-    {
+    public boolean isRegistered() {
         return registered;
     }
 
-    public boolean isVerified() { return verified; }
+    public boolean isVerified() {
+        return verified;
+    }
 
-    public void register(String email)
-    {
+    public void register(String email) {
         SharedPreferences.Editor editor = mContext.getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE).edit();
         String token = FirebaseInstanceId.getInstance().getToken();
 
@@ -45,11 +43,10 @@ public class User {
         httpReq.sendReq("fcm/reg/" + email + MainActivity.DELIMITER + token);
 
         registered = true;
-        Toast.makeText(mContext,"CODE će biti mailan na: " + email, Toast.LENGTH_LONG).show();
+        Toast.makeText(mContext, "CODE će biti mailan na: " + email, Toast.LENGTH_LONG).show();
     }
 
-    public void verify(String code)
-    {
+    public void verify(String code) {
         SharedPreferences.Editor editor = mContext.getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE).edit();
 
         // TODO: verify entered CODE
@@ -60,11 +57,10 @@ public class User {
         HttpReqHelper httpReq = new HttpReqHelper();
 
         verified = true;
-        Toast.makeText(mContext,"CODE OK", Toast.LENGTH_LONG).show();
+        Toast.makeText(mContext, "CODE OK", Toast.LENGTH_LONG).show();
     }
 
-    public String email()
-    {
+    public String email() {
         SharedPreferences configs = mContext.getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE);
         return configs.getString("email", null);
     }

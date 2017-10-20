@@ -15,15 +15,14 @@ import android.widget.Toast;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
-{
+public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
     private static final String TAG = "FCM_LOG";
     private String msgTitle;
     private String msgBody;
     private String msgData;
     private int countRec;
 
-    private void passMessageToActivity(String message){
+    private void passMessageToActivity(String message) {
         Intent intent = new Intent();
         intent.setAction(MainActivity.SENDMESAGGE);
         intent.putExtra("message", message);
@@ -34,8 +33,7 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
         //notification message
-        if (remoteMessage.getNotification() != null)
-        {
+        if (remoteMessage.getNotification() != null) {
             msgBody = remoteMessage.getNotification().getBody();
             createNotification(msgBody);
 
@@ -43,16 +41,14 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
             Log.d(TAG, "Notification Message: " + msgBody);
         }
         //data message
-        else
-        {
+        else {
             DatabaseHandler db = new DatabaseHandler(this);
             msgTitle = remoteMessage.getData().get("title");
             msgBody = remoteMessage.getData().get("msg");
 
             createNotification(msgTitle, msgBody);
 
-            if ( remoteMessage.getData().get("data") != null )
-            {
+            if (remoteMessage.getData().get("data") != null) {
                 msgData = remoteMessage.getData().get("data");
                 passMessageToActivity(msgData);
 
@@ -94,8 +90,7 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService
                 .setAutoCancel(true)
                 .setContentIntent(contentIntent);
 
-        switch (messageTitle)
-        {
+        switch (messageTitle) {
             case "HomeBrain":
                 mNotificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.homebrain));
                 break;

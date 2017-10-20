@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html >
-	<head>
-		<meta charset="UTF-8">
-		<title>HomeBrain</title>
-		<style>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>HomeBrain</title>
+    <style>
 			body
 			{
 				background-color: #ffffff;
@@ -24,10 +24,11 @@
 				font-size: 4.0em;
 				color: #006056
 			}
-		</style>
-		<script type="text/javascript" src="js/jquery.min.js"></script>
-		<script type="text/javascript" src="js/jquery.md5.min.js"></script>
-		<script type="text/javascript">
+
+    </style>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery.md5.min.js"></script>
+    <script type="text/javascript">
 			$(document).ready(function() {
 				$("body").css("display", "none");			 
 				$("body").fadeIn(1000);
@@ -40,16 +41,17 @@
 				}, 2000);
 				
 			});
-		</script>
-	</head>
 
-	<body>
-		<div style="width: 370px;" class="center-div">
-			  <img src="loading.gif">
-			  <div>HomeBrain</div>
-		</div>
-		<form action='http://homebrain.bubulescu.org/app/home.php' method='post' id='frm'>
-			<input type='hidden' id="token" name='token' value=""><br>
-		</form>
-	</body>
+    </script>
+</head>
+
+<body>
+<div style="width: 370px;" class="center-div">
+    <img src="loading.gif">
+    <div>HomeBrain</div>
+</div>
+<form action='http://homebrain.bubulescu.org/app/home.php' method='post' id='frm'>
+    <input type='hidden' id="token" name='token' value=""><br>
+</form>
+</body>
 </html>
