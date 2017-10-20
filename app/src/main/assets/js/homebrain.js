@@ -1,4 +1,5 @@
 var info;
+var loaded = false;
 var pages = ["Home", "MultiMedia", "LAN", "Grijanje", "Vrt"];
 
 function nextPage(thisPage) {
@@ -7,12 +8,6 @@ function nextPage(thisPage) {
 
 function prevPage(thisPage) {
 	return pages[($.inArray(thisPage, pages) - 1 + pages.length) % pages.length];
-}
-
-function getToken()
-{
-	$rnd = Math.floor((Math.random() * ("HomeBrain").length) + 1);	
-	return $.md5(("HomeBrain").substring($rnd-1, $rnd) + Math.floor((Date.now()/1000)/20).toString());
 }
 
 function toast(msg)
@@ -41,10 +36,8 @@ function speak(msg)
 	}
 }
 
-function loading(msg, textOnly)
-{	
-	textOnly = typeof textOnly === 'undefined' ? false : true
-	
+function loading(msg)
+{		
 	if ( typeof msg !== 'undefined' && msg !== false )
 	{
 		$("#overlay").fadeIn(96);
@@ -65,31 +58,44 @@ $( document ).ready( function()
 	});	
 });
 
+function go()
+{
+	if ( loaded ) return;
+	loaded = true;
 
-$( document ).on( "swiperight", ".ui-page", function( event ) {
-	var pageId = $(":mobile-pagecontainer").pagecontainer("getActivePage").prop("id");
+	$(":mobile-pagecontainer").pagecontainer("change", "#" + pages[0], {
+		transition: "slideup",
+		reverse: false,
+		changeHash: false
+		});
 
-	$(":mobile-pagecontainer").pagecontainer("change", "#" + prevPage(pageId), {
-	  transition: "slide",
-	  reverse: true,
-	  changeHash: false
+	$( document ).on( "swiperight", ".ui-page", function( event ) {
+		var pageId = $(":mobile-pagecontainer").pagecontainer("getActivePage").prop("id");
+
+		$(":mobile-pagecontainer").pagecontainer("change", "#" + prevPage(pageId), {
+		transition: "slide",
+		reverse: true,
+		changeHash: false
+		});
+
+		console.log( "SwipeLeft" );
 	});
 
-	console.log( "SwipeLeft" );
-});
+	$( document ).on( "swipeleft", ".ui-page", function( event ) {
+		var pageId = $(":mobile-pagecontainer").pagecontainer("getActivePage").prop("id");	
 
-$( document ).on( "swipeleft", ".ui-page", function( event ) {
-	var pageId = $(":mobile-pagecontainer").pagecontainer("getActivePage").prop("id");	
+		$(":mobile-pagecontainer").pagecontainer("change", "#" + nextPage(pageId), {
+		transition: "slide",
+		reverse: false,
+		changeHash: false
+		});
 
-	$(":mobile-pagecontainer").pagecontainer("change", "#" + nextPage(pageId), {
-	  transition: "slide",
-	  reverse: false,
-	  changeHash: false
+		console.log( "SwipeRight" );
 	});
 
-	console.log( "SwipeRight" );
-});
+	$(document).on("pagecontainerchange", function() {
+		$("[data-role='header'] h1" ).text($(".ui-page-active").jqmData("title"));
+	});
+}
 
-$(document).on("pagecontainerchange", function() {
-	$("[data-role='header'] h1" ).text($(".ui-page-active").jqmData("title"));
-});
+
