@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -23,10 +24,8 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText emailInput, codeInput;
 
-    private WebView webAppLoading;
     private WebView webApp;
-    private ImageView imgLoading;
-    private boolean ShowImageSplash = true;
+    private boolean webAppLoaded = false;
     private MyBroadcastReceiver myBroadcastReceiver = MyBroadcastReceiver.getInstance();
 
     private DatabaseHandler db;
@@ -89,43 +88,27 @@ public class MainActivity extends AppCompatActivity {
     protected void showMain() {
         setContentView(R.layout.activity_main);
 
-        webAppLoading = (WebView) findViewById(R.id.webViewLoading);
-        webAppLoading.getSettings().setLoadWithOverviewMode(true);
-        webAppLoading.getSettings().setUseWideViewPort(true);
-        webAppLoading.loadUrl("file:///android_asset/loading.html");
-
         webApp = (WebView) findViewById(R.id.webView);
-        webApp.addJavascriptInterface(new WebAppInterface(this), "Android");
+        webApp.setWebViewClient(new WebViewClient() {
+            public void onPageFinished(WebView view, String url) {
+                webAppLoaded = true;
+                Log.d(TAG, "WebApp is loaded. ");
+                webApp.loadUrl("javascript:go()");
+            }
+        });
 
         webApp.getSettings().setLoadWithOverviewMode(true);
         webApp.getSettings().setUseWideViewPort(true);
         webApp.getSettings().setJavaScriptEnabled(true);
+        webApp.addJavascriptInterface(new WebAppInterface(this), "Android");
         webApp.getSettings().setAllowUniversalAccessFromFileURLs(true);
 
-        webApp.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-
-                if (ShowImageSplash) {
-                    try {
-                        TimeUnit.SECONDS.sleep(5);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    //hide loading image
-                    findViewById(R.id.webViewLoading).setVisibility(View.GONE);
-                    ShowImageSplash = false;
-                }
-                //show webview
-                findViewById(R.id.webView).setVisibility(View.VISIBLE);
-            }
-        });
-
         //webApp.loadDataWithBaseURL();
-        //webApp.loadUrl("http://homebrain.bubulescu.org/app/home.php");
 
         webApp.loadUrl("file:///android_asset/index.html");
         //webApp.loadUrl("http://homebrain.bubulescu.org/app/home.php");
+
+
     }
 
     @Override
