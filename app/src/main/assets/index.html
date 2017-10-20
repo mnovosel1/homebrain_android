@@ -1,55 +1,359 @@
-<!DOCTYPE html>
-<html >
-	<head>
-		<meta charset="UTF-8">
-		<title>HomeBrain</title>
-		<style>
-			body
-			{
-				background-color: #ffffff;
-			}
-			.center-div
-			{
-				position: absolute;
-				margin: auto;
-				top: 0;
-				right: 0;
-				bottom: 0;
-				left: 0;
-				width: 400px;
-				height: 260px;
-				text-align: center;
-				font-family: Monospace;
-				font-weight: bold;
-				font-size: 4.0em;
-				color: #006056
-			}
-		</style>
-		<script type="text/javascript" src="js/jquery.min.js"></script>
-		<script type="text/javascript" src="js/jquery.md5.min.js"></script>
-		<script type="text/javascript">
-			$(document).ready(function() {
-				$("body").css("display", "none");			 
-				$("body").fadeIn(1000);
-				
-				$rnd = Math.floor((Math.random() * ("HomeBrain").length) + 1);
-				$("#token").val($.md5(("HomeBrain").substring($rnd-1, $rnd) + Math.floor((Date.now()/1000)/20).toString()));
-				
-				setTimeout(function(){
-					$("form#frm").submit();
-				}, 2000);
-				
-			});
-		</script>
-	</head>
 
-	<body>
-		<div style="width: 370px;" class="center-div">
-			  <img src="loading.gif">
-			  <div>HomeBrain</div>
-		</div>
-		<form action='http://homebrain.bubulescu.org/app/home.php' method='post' id='frm'>
-			<input type='hidden' id="token" name='token' value=""><br>
-		</form>
-	</body>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>HomeBrainApp</title>
+	
+	<link rel="stylesheet" href="css/themes/default/jquery.mobile-1.4.5.min.css">
+	<link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
+	<link rel="stylesheet" href="themes/homebrain.css" />
+	
+	<script src="js/jquery.js"></script>
+	<script src="js/jquery.mobile-1.4.5.min.js"></script>
+    <script src="js/jquery.md5.min.js"></script>
+    <script src="js/homebrain.js"></script>
+    
+</head>
+    <body>
+        <div data-role="header">
+            <h1>...</h1>
+            <!-- <a href="#mypanel" data-icon="bars" data-iconpos="notext">Menu</a> -->
+        </div><!-- /header -->
+
+    <!--    HHOOMMEE start      -->
+        <div data-role="page" data-title="Home" id="home">
+    
+            <div data-role="content">
+                <div class="ui-body ui-body-a ui-corner-all">
+                        <ul data-role="listview" data-theme="a" data-dividertheme="b" data-filter="true" data-filter-theme="a" data-filter-placeholder="Search messages...">
+                            <li data-role="list-divider">Friday, October 8, 2010 <span class="ui-li-count">2</span></li>
+                            <li>
+                                <h3>Stephen Weber</h3>
+                                <p><strong>You've been invited to a meeting at Filament Group in Boston, MA</strong></p>
+                                <p>Hey Stephen, if you're available at 10am tomorrow, we've got a meeting with the jQuery team.</p>
+                                <p class="ui-li-aside"><strong>6:24</strong></p>
+                            </li>
+                            <li>
+                                <h3>jQuery Team</h3>
+                                <p><strong>Boston Conference Planning</strong></p>
+                                <p>In preparation for the upcoming conference in Boston, we need to start gathering a list of sponsors and speakers.</p>
+                                <p class="ui-li-aside"><strong>9:18</strong></p>
+                            </li>
+                            <li data-role="list-divider">Thursday, October 7, 2010 <span class="ui-li-count">1</span></li>
+                            <li>
+                                <h3>Avery Walker</h3>
+                            <p><strong>Re: Dinner Tonight</strong></p>
+                            <p>Sure, let's plan on meeting at Highland Kitchen at 8:00 tonight. Can't wait! </p>
+                                <p class="ui-li-aside"><strong>4:48</strong></p>
+                            </li>				
+                        </ul>
+                    </div>
+            </div><!-- /content -->
+    
+        </div>
+    <!--    HHOOMMEE end      --><!-- /page -->
+        
+    <!--    MMUULLTTIIMMEEDDIIAA start      -->
+        <div data-role="page" data-title="MultiMedia" id="multimedia">
+        
+            <div data-role="content">
+                    <div class="ui-body ui-body-a ui-corner-all">
+                            <ul data-role="listview" data-inset="false">
+                                <li>
+                                    <table style="width: 100%; margin-bottom: .7em;">
+                                        <tr>
+                                            <td><h4>KODI</h4></td>
+                                            <td colspan="2" style="text-align: right;">
+                                                <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                                                    <input type="checkbox" name="kodi" id="kodi-onoff" value="on">
+                                                    <label for="kodi-onoff" id="lbl-kodi-onoff">...</label>
+                                                </fieldset>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" id="kodi-info" class="ui-corner-all" style="text-align: left; font-size: .8em; white-space: normal; background-color: #e9e9e9; padding: .3em;">..</td>
+                                        </tr>
+                                    </table>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="ui-body ui-body-a ui-corner-all">
+                            <ul data-role="listview" data-inset="false">
+                                <li>
+                                    <table style="width: 100%; margin-bottom: .7em;">
+                                        <tr>
+                                            <td><h4>Radio</h4></td>
+                                            <td colspan="2" style="text-align: right;">
+                                                <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                                                    <input type="checkbox" name="mpd" id="mpd-onoff" value="on">
+                                                    <label for="mpd-onoff" id="lbl-mpd-onoff">...</label>
+                                                </fieldset>
+                                            </td>
+                                        </tr>
+                                        <tr id="mpd-info-tr">
+                                            <td colspan="3" id="mpd-info" class="ui-corner-all" style="text-align: left; font-size: .8em; white-space: normal; background-color: #e9e9e9; padding: .3em;">..</td>
+                                        </tr>
+                                    </table>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="ui-body ui-body-a ui-corner-all">
+                            <ul data-role="listview" data-inset="false">
+                                <li>
+                                    <table style="width: 100%; margin-bottom: .7em;">
+                                        <tr>
+                                            <td><h4>Pojačalo</h4></td>
+                                            <td colspan="2" style="text-align: right;">
+                                                <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                                                    <input type="radio" name="amp" id="amp-on" value="on">
+                                                    <label for="amp-on" id="lbl-amp-on">uključi</label>
+                                                    <input type="radio" name="amp" id="amp-off" value="off">
+                                                    <label for="amp-off" id="lbl-amp-off">isključi</label>
+                                                </fieldset>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" style="text-align: right;">
+                                                <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                                                    <input type="radio" name="amp" id="amp-kodi" value="kodi">
+                                                    <label for="amp-kodi" id="lbl-amp-kodi">KODI</label>
+                                                    <input type="radio" name="amp" id="amp-mpd" value="mpd">
+                                                    <label for="amp-mpd" id="lbl-amp-mpd">MPD</label>
+                                                    <input type="radio" name="amp" id="amp-aux" value="aux">
+                                                    <label for="amp-aux" id="lbl-amp-aux">AUX</label>
+                                                </fieldset>
+                                                <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                                                    <input type="radio" name="amp" id="amp-volup" value="volup">
+                                                    <label for="amp-volup" id="lbl-amp-volup">+</label>
+                                                    <input type="radio" name="amp" id="amp-mute" value="mute">
+                                                    <label for="amp-mute" id="lbl-amp-mute">mute</label>
+                                                    <input type="radio" name="amp" id="amp-voldown" value="voldown">
+                                                    <label for="amp-voldown" id="lbl-amp-voldown">-</label>
+                                                </fieldset>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                            </ul>
+                        </div>
+            </div><!-- /content -->
+        
+        </div>
+    <!--    MMUULLTTIIMMEEDDIIAA end      --><!-- /page -->
+
+    <!--    LLAANN start      -->
+    <div data-role="page" data-title="LAN" id="lan">
+            
+                    <div data-role="content">
+                        <div class="ui-body ui-body-a ui-corner-all">
+                                <ul data-role="listview" data-inset="false">
+                                    <li>
+                                        <table style="width: 100%; margin-bottom: .7em;">
+                                            <tr>
+                                                <td><h4>HomeServer</h4></td>
+                                                <td colspan="2" style="text-align: right;">
+                                                    <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                                                        <input type="radio" name="hsrv" id="hsrv-on" value="on">
+                                                        <label for="hsrv-on">upali</label>
+                                                        <input type="radio" name="hsrv" id="hsrv-reboot" value="reboot">
+                                                        <label for="hsrv-reboot">reboot</label>
+                                                        <input type="radio" name="hsrv" id="hsrv-auto" value="auto">
+                                                        <label for="hsrv-auto">auto</label>
+                                                    </fieldset>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3" id="hsrv-info" class="ui-corner-all" style="text-align: left; font-size: .8em; white-space: normal; background-color: #e9e9e9; padding: .3em;">...</td>
+                                            </tr>
+                                        </table>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="ui-body ui-body-a ui-corner-all">
+                                <ul data-role="listview" data-inset="false">
+                                    <li>
+                                        <table style="width: 100%; margin-bottom: .7em;">
+                                            <tr>
+                                                <td><h4>HomeBrain</h4></td>
+                                                <td colspan="2" style="text-align: right;">
+                                                    <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                                                        <input type="radio" name="hbr" id="hbr-reboot" value="reboot">
+                                                        <label for="hbr-reboot" id="lbl-hbr-reboot">reboot</label>
+                                                    </fieldset>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3" id="hbr-info" class="ui-corner-all" style="text-align: left; font-size: .8em; white-space: normal; background-color: #e9e9e9; padding: .3em;">...</td>
+                                            </tr>
+                                        </table>
+                                    </li>
+                                </ul>
+                            </div>	
+                    </div><!-- /content -->
+            
+                </div>
+    <!--    LLAANN end      --><!-- /page -->
+
+    <!--    GGRRIIJJAANNJJEE start      -->
+        <div data-role="page" data-title="Grijanje" id="grijanje">        
+            <div data-role="content">
+                    <div class="ui-body ui-body-a ui-corner-all">
+                            <ul data-role="listview" data-inset="false">
+                                <li>
+                                    <table style="width: 100%; margin-bottom: .7em;">
+                                        <tr>
+                                            <td colspan="3"><h4>Termostat</h4></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" style="text-align: center;">
+                                                <form>
+                                                    <input type="range" name="term-slider" id="term-slider" min="10" max="30" step=".5" value="20"><br>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" style="text-align: right;">
+                                                <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                                                    <input type="radio" name="heat" id="heat-set" value="on">
+                                                    <label for="heat-set">podesi</label>
+                                                    <input type="radio" name="heat" id="heat-auto" value="on">
+                                                    <label for="heat-auto">auto</label>
+                                                </fieldset>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table class="ui-corner-all" style="width: 100%; background-color: #e9e9e9;">
+                                                    <tr>
+                                                        <td style="text-align: left; font-size: .8em;">&nbsp;Podešena temperatura:</td>
+                                                        <td colspan="2" id="temp-set" style="text-align: right; font-size: .8em; white-space: normal;">..&nbsp;</td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table class="ui-corner-all" style="width: 100%;">
+                                                    <tr>
+                                                        <td style="text-align: left; font-size: .8em;">&nbsp;Unutarnja vlaga&nbsp;/&nbsp;temperatura:</td>
+                                                        <td colspan="2" style="text-align: right; font-size: .8em; white-space: normal;">
+                                                            <span id="humid-in">..</span>&nbsp;/&nbsp;<span id="temp-in">..</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table class="ui-corner-all" style="width: 100%; background-color: #e9e9e9;">
+                                                    <tr>
+                                                        <td style="text-align: left; font-size: .8em;">&nbsp;Vanjska temperatura:</td>
+                                                        <td colspan="2" id="temp-out" style="text-align: right; font-size: .8em; white-space: normal;">..&nbsp;</td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                            </ul>
+                        </div>
+            </div><!-- /content -->
+        
+        </div>
+    <!--    GGRRIIJJAANNJJEE end      --><!-- /page -->
+
+    <!--    VVRRTT start      -->
+    <div data-role="page" data-title="Vrt" id="vrt">
+            
+                    <div data-role="content">
+                        <div class="ui-body ui-body-a ui-corner-all">
+                                <ul data-role="listview" data-inset="false">
+                                    <li>
+                                        <table style="width: 100%; margin-bottom: .7em;">
+                                            <tr>
+                                                <td colspan="3"><h4>Travnjak</h4></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" style="text-align: left;">
+                                                    <form>
+                                                        <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                                                            <input type="radio" name="lawn" id="lawn-0" value="off">
+                                                            <label for="lawn-0">5</label>
+                                                            <input type="radio" name="lawn" id="lawn-1" value="on">
+                                                            <label for="lawn-1">10</label>
+                                                            <input type="radio" name="lawn" id="lawn-2" value="on">
+                                                            <label for="lawn-2">15</label>
+                                                        </fieldset>
+                                                    </form>
+                                                </td>
+                                                <td style="text-align: right">
+                                                    <form>
+                                                        <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                                                            <input type="checkbox" name="lawnOn" id="lawnOn-0" value="off">
+                                                            <label for="lawnOn-0">uključi</label>
+                                                        </fieldset>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3" class="ui-corner-all" style="text-align: left; font-size: .8em; background-color: #e9e9e9; padding: .3em;">
+                                                    &nbsp;Zalijevanje isključeno.
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="ui-body ui-body-a ui-corner-all">
+                                <ul data-role="listview" data-inset="false">
+                                    <li>
+                                        <table style="width: 100%; margin-bottom: .7em;">
+                                            <tr>
+                                                <td colspan="3"><h4>Vrt</h4></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" style="text-align: left;">
+                                                    <form>
+                                                        <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                                                            <input type="radio" name="garden" id="garden-0" value="off">
+                                                            <label for="garden-0">5</label>
+                                                            <input type="radio" name="garden" id="garden-1" value="on">
+                                                            <label for="garden-1">10</label>
+                                                            <input type="radio" name="garden" id="garden-2" value="on">
+                                                            <label for="garden-2">15</label>
+                                                        </fieldset>
+                                                    </form>
+                                                </td>
+                                                <td style="text-align: right;">
+                                                    <form>
+                                                        <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+                                                            <input type="checkbox" name="gardenOn" id="gardenOn-0" value="off">
+                                                            <label for="gardenOn-0">uključi</label>
+                                                        </fieldset>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3" class="ui-corner-all" style="text-align: left; font-size: .8em; background-color: #e9e9e9; padding: .3em;">
+                                                    &nbsp;Zalijevanje isključeno.
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </li>
+                                </ul>
+                            </div>
+                    </div><!-- /content -->
+            
+                </div>
+    <!--    VVRRTT end      --><!-- /page -->
+
+        <div data-role="footer">
+            <div class="ui-btn-active" style="text-align: right;">Bubulescu.Org&nbsp;</div>
+        </div><!-- /footer -->
+
+    </body>
 </html>
