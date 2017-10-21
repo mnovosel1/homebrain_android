@@ -15,7 +15,6 @@ var page = {
 	}
 }
 
-
 function toast(msg) {	
 	
 	if ( typeof Android !== 'undefined' ) {
@@ -43,18 +42,9 @@ function loading(msg) {
 	
 }
 
-$( document ).ready( function() {
-	$( "[data-role='header']" ).toolbar({
-		theme: "a",
-		position: "fixed",
-		tapToggle: false
-	});	
-	$( "[data-role='footer']" ).toolbar({
-		theme: "a",
-		position: "fixed",
-		tapToggle: false
-	});	
-});
+function connectionIs(connType) {
+	$("#connectionType").html("&nbsp;" + connType);
+}
 
 function go(toPage) {
 
@@ -97,3 +87,17 @@ function go(toPage) {
 }
 
 
+
+
+$( document ).ready( function() {
+	$( "[data-role='header']" ).toolbar({
+		theme: "a",
+		position: "fixed",
+		tapToggle: false
+	});	
+	$( "[data-role='footer']" ).toolbar({
+		theme: "a",
+		position: "fixed",
+		tapToggle: false
+	});	
+});

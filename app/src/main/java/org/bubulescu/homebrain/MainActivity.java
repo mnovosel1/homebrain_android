@@ -92,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
         webApp.setWebViewClient(new WebViewClient() {
             public void onPageFinished(WebView view, String url) {
                 webAppLoaded = true;
-                Log.d(TAG, "WebApp is loaded. ");
+                Log.d(TAG, "WebApp is loaded...");
+                
                 webApp.loadUrl("javascript:go()");
             }
         });
