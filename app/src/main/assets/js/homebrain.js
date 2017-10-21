@@ -1,99 +1,97 @@
-var info;
+var updates;
 var loaded = false;
-var pages = ["Home", "MultiMedia", "LAN", "Grijanje", "Vrt"];
+var pages = ["home", "multimedia", "lan", "grijanje", "vrt"];
 
-function nextPage(thisPage) {
-	return pages[($.inArray(thisPage, pages)+1) % pages.length];
-}
-
-function prevPage(thisPage) {
-	return pages[($.inArray(thisPage, pages) - 1 + pages.length) % pages.length];
-}
-
-function toast(msg)
-{	
-	
-	if ( typeof Android !== 'undefined' )
-	{
-		Android.toast(msg);
+var page = {
+	list: pages,
+	curr: function() {
+		return $(":mobile-pagecontainer").pagecontainer("getActivePage").prop("id");
+	},
+    prev: function () {
+		return this.list[($.inArray(this.curr(), this.list) - 1 + this.list.length) % this.list.length];
+	},
+	next: function () {
+		return this.list[($.inArray(this.curr(), this.list) + 1) % this.list.length];
 	}
-	else
-	{
+}
+
+
+function toast(msg) {	
+	
+	if ( typeof Android !== 'undefined' ) {
+		Android.toast(msg);
+	} else {
 		console.log("Toasting: " + msg);
 	}
 	
 }
 
-function speak(msg)
-{
-	if ( typeof Android !== 'undefined' )
-	{
+function speak(msg) {
+	if ( typeof Android !== 'undefined' ) {
 		Android.speak(tekst);
-	}
-	else
-	{
+	} else {
 		console.log("Speaking: " + msg);
 	}
 }
 
-function loading(msg)
-{		
-	if ( typeof msg !== 'undefined' && msg !== false )
-	{
+function loading(msg) {		
+	if ( typeof msg !== 'undefined' && msg !== false ) {
 		$("#overlay").fadeIn(96);
-	} 
-	else 
-	{
+	} else  {
 		$("#overlay").delay(128).fadeOut(128);
 	}
 	
 }
 
-$( document ).ready( function()
-{
-	$( "[data-role='header'], [data-role='footer']" ).toolbar({
+$( document ).ready( function() {
+	$( "[data-role='header']" ).toolbar({
+		theme: "a",
+		position: "fixed",
+		tapToggle: false
+	});	
+	$( "[data-role='footer']" ).toolbar({
 		theme: "a",
 		position: "fixed",
 		tapToggle: false
 	});	
 });
 
-function go()
-{
-	if ( loaded ) return;
-	loaded = true;
+function go(toPage) {
 
-	$(":mobile-pagecontainer").pagecontainer("change", "#" + pages[0], {
+	toPage = ( typeof toPage === 'undefined' ) ? page.list[0] : toPage;
+
+	$(":mobile-pagecontainer").pagecontainer("change", "#" + toPage, {
 		transition: "slideup",
 		reverse: false,
 		changeHash: false
-		});
+	});
+
+	if ( loaded ) return;
+	loaded = true;
 
 	$( document ).on( "swiperight", ".ui-page", function( event ) {
 		var pageId = $(":mobile-pagecontainer").pagecontainer("getActivePage").prop("id");
 
-		$(":mobile-pagecontainer").pagecontainer("change", "#" + prevPage(pageId), {
+		$(":mobile-pagecontainer").pagecontainer("change", "#" + page.prev(), {
 		transition: "slide",
 		reverse: true,
 		changeHash: false
 		});
-
-		console.log( "SwipeLeft" );
 	});
 
 	$( document ).on( "swipeleft", ".ui-page", function( event ) {
 		var pageId = $(":mobile-pagecontainer").pagecontainer("getActivePage").prop("id");	
 
-		$(":mobile-pagecontainer").pagecontainer("change", "#" + nextPage(pageId), {
+		$(":mobile-pagecontainer").pagecontainer("change", "#" + page.next(), {
 		transition: "slide",
 		reverse: false,
 		changeHash: false
 		});
-
-		console.log( "SwipeRight" );
 	});
 
 	$(document).on("pagecontainerchange", function() {
+		console.log($(".ui-page-active").jqmData("title"));
+		
 		$("[data-role='header'] h1" ).text($(".ui-page-active").jqmData("title"));
 	});
 }

@@ -107,8 +107,6 @@ public class MainActivity extends AppCompatActivity {
 
         webApp.loadUrl("file:///android_asset/index.html");
         //webApp.loadUrl("http://homebrain.bubulescu.org/app/home.php");
-
-
     }
 
     @Override
