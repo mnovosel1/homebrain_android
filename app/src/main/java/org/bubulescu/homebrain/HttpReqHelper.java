@@ -1,5 +1,7 @@
 package org.bubulescu.homebrain;
 
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -25,14 +27,28 @@ public class HttpReqHelper {
     private String baseUrlHome = "10.10.10.10";
     private String baseUrl;
 
+    Context mContext;
+
+    HttpReqHelper (Context c) { mContext = c; }
+
     public void sendReq(final String arguments) {
+
         new Thread(new Runnable() {
             @Override
             public void run() {
 
+                String connectionIs = "LAN";
                 baseUrl = "http://" + baseUrlHome + "/api/";
-                if (isLive(baseUrlHome, 9343, 128))
+                if (isLive(baseUrlHome, 9343, 128)) {
                     baseUrl = "https://" + baseUrlAway + ":9343/api/";
+
+                    connectionIs = "Net";
+                }
+
+                Intent intent = new Intent();
+                intent.setAction(MainActivity.SENDMESAGGE);
+                intent.putExtra("runOnWebView", "connectionIs('" + connectionIs + "')");
+                mContext.sendBroadcast(intent);
 
                 try {
                     URL url = new URL(baseUrl + arguments);

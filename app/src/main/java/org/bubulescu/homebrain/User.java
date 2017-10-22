@@ -39,11 +39,10 @@ public class User {
         editor.putString("token", token);
         editor.commit();
 
-        HttpReqHelper httpReq = new HttpReqHelper();
+        HttpReqHelper httpReq = new HttpReqHelper(mContext);
         httpReq.sendReq("fcm/reg/" + email + MainActivity.DELIMITER + token);
 
         registered = true;
-        Toast.makeText(mContext, "CODE će biti mailan na: " + email, Toast.LENGTH_LONG).show();
     }
 
     public void verify(String code) {
@@ -54,7 +53,7 @@ public class User {
         editor.putBoolean("verified", true);
         editor.commit();
 
-        HttpReqHelper httpReq = new HttpReqHelper();
+        HttpReqHelper httpReq = new HttpReqHelper(mContext);
 
         verified = true;
         Toast.makeText(mContext, "CODE OK", Toast.LENGTH_LONG).show();
