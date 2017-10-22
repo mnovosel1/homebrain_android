@@ -1,17 +1,19 @@
 var updates;
 var loaded = false;
-var pages = ["home", "multimedia", "lan", "grijanje", "vrt"];
+var pages = ["multimedia", "lan", "grijanje", "vrt", "home"];
 
 var page = {
 	list: pages,
 	curr: function() {
 		return $(":mobile-pagecontainer").pagecontainer("getActivePage").prop("id");
 	},
-    prev: function () {
-		return this.list[($.inArray(this.curr(), this.list) - 1 + this.list.length) % this.list.length];
+    prev: function (currPage) {
+		if ( arguments.length == 0 ) currPage = this.curr();
+		return this.list[($.inArray(currPage, this.list) - 1 + this.list.length) % this.list.length];
 	},
-	next: function () {
-		return this.list[($.inArray(this.curr(), this.list) + 1) % this.list.length];
+	next: function (currPage) {
+		if ( arguments.length == 0 ) currPage = this.curr();
+		return this.list[($.inArray(currPage, this.list) + 1) % this.list.length];
 	}
 }
 
@@ -46,44 +48,79 @@ function connectionIs(connType) {
 	$("#connectionType").html("&nbsp;" + connType);
 }
 
+function slideRight(toPage) {	
+	if ( arguments.length == 0 ) toPage = page.prev();
+	
+	$(":mobile-pagecontainer").pagecontainer("change", "#" + toPage, {
+		transition: "slide",
+		reverse: true,
+		changeHash: false
+		});
+}
+
+function slideLeft(toPage) {
+	if ( arguments.length == 0 ) toPage = page.next();
+
+	$(":mobile-pagecontainer").pagecontainer("change", "#" + toPage, {
+		transition: "slide",
+		reverse: false,
+		changeHash: false
+		});
+}
+
+
+function prependHeader(item) {
+
+	var pageTitle = item.data("title");
+	var pageId = item.attr('id');
+
+	var prevPage = $("#" + page.prev(pageId));
+	var nextPage = $("#" + page.next(pageId));
+
+	item.prepend('' + "\n" +
+	'<!-- header -->' + "\n" +
+	'<div data-role="header">' + "\n" +
+	'		<a href="#" class="ui-btn ui-btn-active ui-icon-arrow-l ui-btn-icon-left" onclick="slideRight(\'' + prevPage.attr("id") + '\')">' + prevPage.data("title") + '</a>' + "\n" +
+	'		<h1>' + pageTitle + '</h1>' + "\n" +
+	'		<a href="#" class="ui-btn ui-btn-active ui-icon-arrow-r ui-btn-icon-right" onclick="slideLeft(\'' + nextPage.attr("id") + '\')">' + nextPage.data("title") + '</a>' + "\n" +
+	'</div><!-- /header -->' + "\n" +
+	'');
+}
+
 function go(toPage) {
 
-	toPage = ( typeof toPage === 'undefined' ) ? page.list[0] : toPage;
+	if ( !loaded ) {
+		loaded = true;
 
+		$.each(page.list, function() {
+			prependHeader($("#" + this));
+		});
+
+		$( document ).on( "swiperight", ".ui-page", function( event ) {
+			slideRight();
+		});
+
+		$( document ).on( "swipeleft", ".ui-page", function( event ) {
+			slideLeft();
+		});
+
+		/*
+		$(document).on("pagecontainerchange", function() {
+			//console.log($(".ui-page-active").jqmData("title"));		
+			//$("[data-role='header'] h1" ).text($(".ui-page-active").jqmData("title"));
+		});
+		*/
+	}
+
+	
+	toPage = ( typeof toPage === 'undefined' ) ? page.list[0] : toPage;
+	
 	$(":mobile-pagecontainer").pagecontainer("change", "#" + toPage, {
 		transition: "slideup",
 		reverse: false,
 		changeHash: false
 	});
 
-	if ( loaded ) return;
-	loaded = true;
-
-	$( document ).on( "swiperight", ".ui-page", function( event ) {
-		var pageId = $(":mobile-pagecontainer").pagecontainer("getActivePage").prop("id");
-
-		$(":mobile-pagecontainer").pagecontainer("change", "#" + page.prev(), {
-		transition: "slide",
-		reverse: true,
-		changeHash: false
-		});
-	});
-
-	$( document ).on( "swipeleft", ".ui-page", function( event ) {
-		var pageId = $(":mobile-pagecontainer").pagecontainer("getActivePage").prop("id");	
-
-		$(":mobile-pagecontainer").pagecontainer("change", "#" + page.next(), {
-		transition: "slide",
-		reverse: false,
-		changeHash: false
-		});
-	});
-
-	$(document).on("pagecontainerchange", function() {
-		console.log($(".ui-page-active").jqmData("title"));
-		
-		$("[data-role='header'] h1" ).text($(".ui-page-active").jqmData("title"));
-	});
 }
 
 
