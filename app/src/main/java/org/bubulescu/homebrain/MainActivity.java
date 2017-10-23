@@ -19,19 +19,18 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity_LOG_";
-    final static String SENDMESAGGE = "MSGING";
-    final static String DELIMITER = "____";
-    final static String CONFIGS = "config.ini";
-    final Handler handler = new Handler();
+    public final static String SENDMESAGGE = "MSGING";
+    public final static String DELIMITER = "____";
+    public final static String CONFIGS = "config.ini";
+    private final static  String TAG = "MainActivity_LOG_";
 
+    private Handler handler = new Handler();
     private EditText emailInput, codeInput;
-
-    private WebView webApp;
+    private WebView webApp = null;
     private BroadcastReceiver broadcastReceiver = null;
-
     private DatabaseHandler db;
     private User user;
+    private boolean webAppLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         webApp = (WebView) findViewById(R.id.webView);
         webApp.setWebViewClient(new WebViewClient() {
             public void onPageFinished(WebView view, String url) {
-
+                webAppLoaded = true;
             }
         });
 
@@ -143,19 +142,32 @@ public class MainActivity extends AppCompatActivity {
         findViewById((R.id.webView)).setVisibility(View.VISIBLE);
 
         if ( userOK() ) {
+            startWebApp();
+        }
+    }
+
+    private void startWebApp() {
+        if ( webAppLoaded ) {
+            runOnWebView("go()");
+        } else {
+            Log.d(TAG, "waiting for WebApp to load...");
             handler.postDelayed (new Runnable() {
                 public void run() {
-                    runOnWebView("go()");
+                    startWebApp();
                 }
-            }, 2000);
+            }, 500);
         }
     }
 
     public void runOnWebView(String fnToRun) {
 
-        webApp.loadUrl("javascript:"+ fnToRun);
+        String log = "javascript:";
 
-        Log.d(TAG, "runOnWV - javascript:"+ fnToRun);
+        if ( webApp != null ) {
+            webApp.loadUrl("javascript:"+ fnToRun);
+        } else log = "!NOTRUNNED! " + log;
+
+        Log.d(TAG, log + fnToRun);
     }
 
     public boolean userOK() {
@@ -168,12 +180,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent arg) {
                 // just a message
-                if (arg.hasExtra("message")) {
+                if ( arg.hasExtra("message") ) {
                     Log.d(TAG, "FCM broadcast: " + arg.getStringExtra("message"));
 
                 // run jscript function on WebView
-                } else if (arg.hasExtra("runOnWebView")) {
-                    webApp.loadUrl("javascript:"+ arg.getStringExtra("runOnWebView"));
+                } else if ( arg.hasExtra("runOnWebView") ) {
+                    runOnWebView(arg.getStringExtra("runOnWebView"));
                 }
             }
         };
