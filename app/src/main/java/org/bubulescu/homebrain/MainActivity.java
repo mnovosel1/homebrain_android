@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById((R.id.webView)).setVisibility(View.VISIBLE);
 
-        if ( user.isRegistered() && user.isVerified() ) {
+        if ( userOK() ) {
             handler.postDelayed (new Runnable() {
                 public void run() {
                     runOnWebView("go()");
@@ -151,9 +151,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void runOnWebView(String fnToRun)
-    {
+    public void runOnWebView(String fnToRun) {
+
         webApp.loadUrl("javascript:"+ fnToRun);
+
+        Log.d(TAG, "runOnWV - javascript:"+ fnToRun);
     }
 
     public boolean userOK() {
@@ -172,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
                 // run jscript function on WebView
                 } else if (arg.hasExtra("runOnWebView")) {
                     webApp.loadUrl("javascript:"+ arg.getStringExtra("runOnWebView"));
-                    Log.d(TAG, "runOnWV broadcast - javascript:"+ arg.getStringExtra("runOnWebView"));
                 }
             }
         };

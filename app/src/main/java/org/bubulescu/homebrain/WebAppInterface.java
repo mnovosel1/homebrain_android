@@ -2,6 +2,7 @@ package org.bubulescu.homebrain;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.webkit.JavascriptInterface;
@@ -15,16 +16,15 @@ public class WebAppInterface {
 
     Context mContext;
 
-    /**
-     * Instantiate the interface and set the context
-     */
     WebAppInterface(Context c) {
         mContext = c;
     }
 
-    /**
-     * Show a toast from the web page
-     */
+    @JavascriptInterface
+    public String checkConn() {
+        return HttpReqHelper.checkConn(mContext);
+    }
+
     @JavascriptInterface
     public void toast(String toast) {
         Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show();

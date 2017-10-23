@@ -23,13 +23,29 @@ public class HttpReqHelper {
 
     private static final String TAG = "HttpReqHelper_LOG_";
 
-    private String baseUrlAway = "hbr.bubulescu.org";
-    private String baseUrlHome = "10.10.10.10";
+    private static String baseUrlAway = "hbr.bubulescu.org";
+    private static String baseUrlHome = "10.10.10.10";
     private String baseUrl;
 
     Context mContext;
 
     HttpReqHelper (Context c) { mContext = c; }
+
+    public static String checkConn(Context c) {
+
+        String connIs;
+
+        if (isLive(baseUrlHome, 9343, 128)) {
+            connIs = "Net";
+        } else connIs = "LAN";
+
+        Intent intent = new Intent();
+        intent.setAction(MainActivity.SENDMESAGGE);
+        intent.putExtra("runOnWebView", "connectionIs('" + connIs + "')");
+        c.sendBroadcast(intent);
+
+        return connIs;
+    };
 
     public void sendReq(final String arguments) {
 
@@ -37,18 +53,10 @@ public class HttpReqHelper {
             @Override
             public void run() {
 
-                String connectionIs = "LAN";
-                baseUrl = "http://" + baseUrlHome + "/api/";
-                if (isLive(baseUrlHome, 9343, 128)) {
-                    baseUrl = "https://" + baseUrlAway + ":9343/api/";
+                String connIs = checkConn(mContext);
 
-                    connectionIs = "Net";
-                }
-
-                Intent intent = new Intent();
-                intent.setAction(MainActivity.SENDMESAGGE);
-                intent.putExtra("runOnWebView", "connectionIs('" + connectionIs + "')");
-                mContext.sendBroadcast(intent);
+                if ( connIs == "LAN") baseUrl = "http://" + baseUrlHome + "/api/";
+                else baseUrl = "https://" + baseUrlAway + ":9343/api/";
 
                 try {
                     URL url = new URL(baseUrl + arguments);
@@ -114,7 +122,7 @@ public class HttpReqHelper {
         return null;
     }
 
-    public boolean isLive(String host, int port, int timeout) {
+    public static boolean isLive(String host, int port, int timeout) {
         try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress(host, port), timeout);
             return true;
