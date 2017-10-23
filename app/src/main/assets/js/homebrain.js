@@ -104,6 +104,10 @@ function go(toPage) {
 			slideLeft();
 		});
 
+		if ( typeof Android !== 'undefined' ) {
+			Android.checkConn();
+		}
+
 		/*
 		$(document).on("pagecontainerchange", function() {
 			//console.log($(".ui-page-active").jqmData("title"));		
