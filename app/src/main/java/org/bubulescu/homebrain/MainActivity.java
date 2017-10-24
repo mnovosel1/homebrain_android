@@ -24,9 +24,8 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
 
     public final static String SENDMESAGGE = "MSGING";
-    public final static String DELIMITER = "____";
     public final static String CONFIGS = "config.ini";
-    private final static  String TAG = "MainActivity_LOG_";
+    private final static  String TAG = "MA_LOG_";
     private static Context mContext;
 
     private Handler handler = new Handler();
@@ -103,6 +102,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String email = emailInput.getText().toString();
+
+                Log.d("dbg_LOG_", email);
+
                 user.register(email);
                 showCodeInput();
             }
@@ -150,21 +152,19 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById((R.id.webView)).setVisibility(View.VISIBLE);
 
-        if ( user.OK() ) {
-            startWebApp();
-        }
+        startWebApp();
     }
 
     private void startWebApp() {
-        if ( webAppLoaded ) {
-            runOnWebView("go()");
+        if ( webAppLoaded && user.isVerified() ) {
+            runOnWebView("go(null, " + user.pages() + ")");
         } else {
-            Log.d(TAG, "waiting for WebApp to load...");
+            Log.d(TAG + "startWebApp", "waiting...");
             handler.postDelayed (new Runnable() {
                 public void run() {
                     startWebApp();
                 }
-            }, 500);
+            }, 1024);
         }
     }
 
@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
             webApp.loadUrl("javascript:"+ fnToRun);
         } else log = "!NOTRUNNED! " + log;
 
-        Log.d(TAG, log + fnToRun);
+        Log.d(TAG + "runOnWebView", log + fnToRun);
     }
 
     protected void registerMyReceiver() {
@@ -186,16 +186,11 @@ public class MainActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent arg) {
                 // just a message
                 if ( arg.hasExtra("message") ) {
-                    Log.d(TAG, "FCM broadcast: " + arg.getStringExtra("message"));
+                    Log.d(TAG + "regMyReceiver", "FCM broadcast: " + arg.getStringExtra("message"));
 
                     // configs
                 } else if ( arg.hasExtra("configs") ) {
-                    try {
-                        JSONObject configs = new JSONObject(arg.getStringExtra("configs"));
-                        user.configure(configs);
-                    } catch (JSONException e) {
-                        Log.d(TAG, e.toString());
-                    }
+                    saveConfigs(arg.getStringExtra("configs"));
 
                     // run jscript function on WebView
                 } else if ( arg.hasExtra("runOnWebView") ) {
@@ -224,29 +219,38 @@ public class MainActivity extends AppCompatActivity {
             JSONObject bcMessages = new JSONObject(bcasts);
             for (int i = 0; i<bcMessages.names().length(); i++) {
                 intent.putExtra(bcMessages.names().getString(i), bcMessages.get(bcMessages.names().getString(i)).toString());
-                Log.d(TAG, bcMessages.names().getString(i) + ", " + bcMessages.get(bcMessages.names().getString(i)).toString());
+                Log.d(TAG + "sendBcastMsg", bcMessages.names().getString(i) + ", " + bcMessages.get(bcMessages.names().getString(i)).toString());
 
                 c.sendBroadcast(intent);
             }
         } catch (JSONException e) {
-            Log.d(TAG, e.toString());
+            Log.d(TAG + "sendBcastMsg", e.toString());
         }
     }
 
-    public static void savePreferences(String configs) {
+    public static void saveConfigs(String configs) {
 
         String keys = "", vals = "";
         SharedPreferences.Editor edit = mContext.getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE).edit();
 
+        Log.d("dbg_LOG_", configs);
         try {
-            JSONObject prefs = new JSONObject(configs);
-            for (int i = 0; i<prefs.names().length(); i++) {
-                edit.putString(prefs.names().getString(i), prefs.get(prefs.names().getString(i)).toString());
-                Log.d(TAG, prefs.names().getString(i) + ", " + prefs.get(prefs.names().getString(i)).toString());
+            JSONObject cfgs = new JSONObject(configs);
+
+            for (int i = 0; i<cfgs.names().length(); i++) {
+                edit.putString(cfgs.names().getString(i), cfgs.get(cfgs.names().getString(i)).toString());
+                Log.d(TAG + "saveConfigs", cfgs.names().getString(i) + ", " + cfgs.get(cfgs.names().getString(i)).toString());
             }
             edit.commit();
+            Log.d(TAG + "saveConfigs", "configs saved..");
         } catch (JSONException e) {
-            Log.d(TAG, e.toString());
+            Log.d(TAG + "saveConfigs", e.toString());
         }
+    }
+
+    public static String getConfig(String cfgValue) {
+        SharedPreferences configs = mContext.getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE);
+
+        return configs.getString(cfgValue, null);
     }
 }

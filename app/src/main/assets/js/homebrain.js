@@ -97,7 +97,7 @@ function go(toPage, allowedPages) {
 
 	if ( !loaded ) {
 		loaded = true;
-		page.list = (allowedPages == null) ? ["home", "multimedia", "grijanje"] : allowedPages;
+		page.list = (allowedPages == null) ? ["multimedia"] : allowedPages;
 
 		$.each(page.list, function() {
 			prependHeader($("#" + this));
@@ -123,7 +123,7 @@ function go(toPage, allowedPages) {
 		*/
 	}
 
-	toPage = ( typeof toPage === 'undefined' ) ? page.list[0] : toPage;
+	toPage = ( typeof toPage === 'undefined' || toPage == null ) ? page.list[0] : toPage;
 
 	if ( $.inArray(toPage, page.list) < 0 ) return;
 

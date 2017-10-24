@@ -6,6 +6,9 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -23,7 +27,7 @@ import java.util.Random;
 
 public class HttpReqHelper {
 
-    private static final String TAG = "HttpReqHelper_LOG_";
+    private static final String TAG = "HttpRH_LOG_";
 
     private static String protocolAway, urlAway, connAway;
     private static String protocolHome, urlHome, connHome;
@@ -67,12 +71,12 @@ public class HttpReqHelper {
 
         MainActivity.sendBcastMsg(c, new String("{\"runOnWebView\": \"notice('" + connIs + "')\"}"));
 
-        Log.d(TAG, "{\"runOnWebView\": \"notice('" + connIs + "')\"}");
+        Log.d(TAG + "checkConn", "{\"runOnWebView\": \"notice('" + connIs + "')\"}");
 
         return connIs;
     };
 
-    public void sendReq(final String name, final String verb, final Map<String, String> arguments) {
+    public void sendReq(final String name, final String verb, final String arguments) {
 
         new Thread(new Runnable() {
             @Override
@@ -95,8 +99,9 @@ public class HttpReqHelper {
 
                         Uri.Builder builder = new Uri.Builder().appendQueryParameter("secToken", getToken());
 
-                        for ( Map.Entry<String, String> arg : arguments.entrySet() ) {
-                            builder.appendQueryParameter(arg.getKey(), arg.getValue());
+                        JSONObject args = new JSONObject(arguments);
+                        for (int i = 0; i<args.names().length(); i++) {
+                            builder.appendQueryParameter(args.names().getString(i), args.get(args.names().getString(i)).toString());
                         }
 
                         String query = builder.build().getEncodedQuery();
@@ -111,11 +116,13 @@ public class HttpReqHelper {
 
                         httpCon.getInputStream();
 
-                        Log.d(TAG, "HttpResponse: " + httpCon.getResponseMessage() + " HttpRequested: " + baseUrl + arguments);
-                    } catch (MalformedURLException ex) {
-                        Log.d(TAG, Log.getStackTraceString(ex));
-                    } catch (IOException ex) {
-                        Log.d(TAG, Log.getStackTraceString(ex));
+                        Log.d(TAG + "sendReq", "HttpResponse: " + httpCon.getResponseMessage() + " HttpRequested: " + baseUrl + arguments);
+                    } catch (MalformedURLException e) {
+                        Log.d(TAG + "sendReq", Log.getStackTraceString(e));
+                    } catch (IOException e) {
+                        Log.d(TAG + "sendReq", Log.getStackTraceString(e));
+                    } catch (JSONException e) {
+                        Log.d(TAG + "sendReq", Log.getStackTraceString(e));
                     }
                 }
             }

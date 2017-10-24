@@ -16,87 +16,47 @@ public class User {
 
     private static final String TAG = "User_LOG_";
 
-    private boolean registered = false;
-    private boolean verified = false;
-    private boolean configured = true;
     private Context mContext;
     private SharedPreferences configs;
+    private HttpReqHelper httpReq;
 
     public User(Context context) {
-        mContext = context;
 
+        mContext = context;
         configs = mContext.getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE);
-        if (configs.getString("token", null) != null) registered = true;
-        if (configs.getBoolean("verified", false) != false) verified = true;
+        httpReq = new HttpReqHelper(mContext);
     }
 
     public boolean isRegistered() {
-        return registered;
-    }
-
-    public boolean isConfigured() {
-        return configured;
+        return (configs.getString("token", null) != null);
     }
 
     public boolean isVerified() {
-        return verified;
+        return (configs.getString("pages", null) != null);
     }
-
-    public boolean OK() { return registered && configured && verified; }
 
     public void register(String email) {
 
         String token = FirebaseInstanceId.getInstance().getToken();
+        String regData = "{\"email\": \"" + email + "\", \"token\": \"" + token + "\"}";
 
-        SharedPreferences.Editor edit = configs.edit();
-        edit.putString("email", email);
-        edit.putString("token", token);
-        edit.commit();
+        httpReq.sendReq("fcm", "reg", regData);
 
-        HttpReqHelper httpReq = new HttpReqHelper(mContext);
-        HashMap<String, String> arguments = new HashMap<String, String>();
-        arguments.put("email", email);
-        arguments.put("token", token);
-        httpReq.sendReq("fcm", "reg", arguments);
-
-        registered = true;
-    }
-
-    public void configure(JSONObject config) {
-
-        SharedPreferences.Editor edit = configs.edit();
-        String key, value;
-
-        try {
-                for (int i = 0; i<config.names().length(); i++) {
-                    key = config.names().getString(i);
-                    value = config.get(config.names().getString(i)).toString();
-                    edit.putString(key, value);
-                }
-                edit.commit();
-                configured = true;
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
+        MainActivity.saveConfigs(regData);
     }
 
     public void verify(String code) {
 
-        // TODO: verify entered CODE
+        httpReq.sendReq("fcm", "verify", new String("{\"code\": \"" + code + "\", \"email\": \""+ email() +"\"}"));
 
-        SharedPreferences.Editor edit = configs.edit();
-        edit.putBoolean("verified", true);
-        edit.commit();
-
-        HttpReqHelper httpReq = new HttpReqHelper(mContext);
-
-        verified = true;
-        Toast.makeText(mContext, "CODE OK", Toast.LENGTH_LONG).show();
+        Toast.makeText(mContext, "Please wait for verification...", Toast.LENGTH_LONG).show();
     }
 
     public String email() {
-        SharedPreferences configs = mContext.getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE);
         return configs.getString("email", null);
+    }
+
+    public String pages() {
+        return MainActivity.getConfig("pages");
     }
 }

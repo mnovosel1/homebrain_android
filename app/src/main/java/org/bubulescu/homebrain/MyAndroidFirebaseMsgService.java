@@ -43,52 +43,48 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
         if (remoteMessage.getNotification() != null) {
             msgTitle = remoteMessage.getNotification().getTitle();
             msgBody = remoteMessage.getNotification().getBody();
-            createNotification(msgTitle, msgBody);
 
-            Log.d(TAG, "Notification from: " + remoteMessage.getFrom() + " " + msgTitle + ": " + msgBody);
+            Log.d(TAG + "onMsgRec", "Notification: " + remoteMessage.getFrom() + " " + msgTitle + ": " + msgBody);
         }
         //data message
         else {
             DatabaseHandler db = new DatabaseHandler(this);
+            boolean notify = false;
+
             msgTitle = remoteMessage.getData().get("title");
             msgBody = remoteMessage.getData().get("msg");
 
-            createNotification(msgTitle, msgBody);
+            Log.d(TAG + "onMsgRec", "DATA msg received..");
 
+            // CONFIGS data message
             if (remoteMessage.getData().get("configs") != null) {
-                MainActivity.savePreferences(remoteMessage.getData().get("configs"));
-
-            } else if (remoteMessage.getData().get("data") != null) {
-                try {
-                    JSONObject data = new JSONObject(remoteMessage.getData().get("data"));
-
-                    db.updateDb(data);
-                } catch (JSONException e) {
-                    Log.d(TAG, "DATA msg - no JSON " + e.toString());
-                }
-                /*
-                msgData = remoteMessage.getData().get("data");
-                passMessageToMainActivity(msgData);
-
-                String[] msgDataArray = msgData.split("\\|");
-                //String[] msgDataArray = {"first", "second"};
-                Log.d(TAG, "msgDataArray.length = " + msgDataArray.length);
-                db.updateDb(msgDataArray);
-                */
+                MainActivity.saveConfigs(remoteMessage.getData().get("configs"));
             }
 
-            countRec = db.getCount();
+            // DB UPDATE data message
+            else if (remoteMessage.getData().get("data") != null) {
+                try {
+                    JSONObject data = new JSONObject(remoteMessage.getData().get("data"));
+                    db.updateDb(data);
+                    notify = true;
 
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                public void run() {
-                    //Toast.makeText(getApplicationContext(), msgTitle + ": " + msgBody, Toast.LENGTH_LONG).show();
-                    Toast.makeText(getApplicationContext(), "Br. zapisa: " + countRec, Toast.LENGTH_LONG).show();
+                    Log.d(TAG + "onMsgRec", "Db records: " + db.getCount());
+                } catch (JSONException e) {
+                    Log.d(TAG + "onMsgRec", "DATA msg - no JSON " + e.toString());
                 }
-            });
+            }
 
-            //Log.d(TAG, "From: " + remoteMessage.getFrom());
-            //Log.d(TAG, "DATA Message: " + msgBody);
+            if ( notify ) {
+
+                createNotification(msgTitle, msgBody);
+
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), msgTitle + ": " + msgBody, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
         }
     }
 
@@ -111,23 +107,23 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
 
         switch (messageTitle) {
             case "HomeBrain":
-                mNotificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.homebrain));
+                mNotificationBuilder.setSound(Uri.parse("android.resource://org.bubulescu.homebrain/" + R.raw.homebrain));
                 break;
 
             case "HomeServer":
-                mNotificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.homeserver));
-                break;
-
-            case "KODI":
-                mNotificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.kodi));
+                mNotificationBuilder.setSound(Uri.parse("android.resource://org.bubulescu.homebrain/" + R.raw.homeserver));
                 break;
 
             case "MPD":
-                mNotificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.mpd));
+                mNotificationBuilder.setSound(Uri.parse("android.resource://org.bubulescu.homebrain/" + R.raw.mpd));
+                break;
+
+            case "KODI":
+                mNotificationBuilder.setSound(Uri.parse("android.resource://org.bubulescu.homebrain/" + R.raw.kodi));
                 break;
 
             default:
-                mNotificationBuilder.setSound(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.notify));
+                mNotificationBuilder.setSound(Uri.parse("android.resource://org.bubulescu.homebrain/" + R.raw.notify));
         }
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

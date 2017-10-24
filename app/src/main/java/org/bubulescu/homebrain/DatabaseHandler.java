@@ -71,16 +71,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             vals = vals.substring(0, vals.length() - 2);
 
             sql = "INSERT INTO " + table + " (" + keys +  ") VALUES (" + vals + ");";
-            try {
-                db.execSQL(sql);
-                Log.d(TAG, sql);
-            } catch (Exception e){
-                Log.d(TAG, e.toString());
-            }
+
+            db.execSQL(sql);
+            Log.d(TAG, sql);
+
 
         } catch (JSONException e) {
                 e.printStackTrace();
             Log.d(TAG, "JSON exc.: " + e.toString());
+        } catch (Exception e){
+            Log.d(TAG, e.toString());
         }
 
         db.execSQL("DELETE FROM changelog WHERE timestamp <= date('now', '-14 day');");
