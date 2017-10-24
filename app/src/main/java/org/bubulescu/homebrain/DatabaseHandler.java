@@ -6,8 +6,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import static android.R.attr.key;
+import static android.R.attr.value;
+import static android.R.id.edit;
+
 public class DatabaseHandler extends SQLiteOpenHelper {
-    private static final String TAG = "MyDatabaseHandler_LOG_";
+    private static final String TAG = "MyDbaHandler_LOG_";
 
     // Database Version
     private static final int DATABASE_VERSION = 1;
@@ -45,26 +52,40 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void updateDb(String[] msgDataArray) {
+    public void updateDb(JSONObject data) {
+
         SQLiteDatabase db = this.getWritableDatabase();
+        String keys = "", vals = "", table, sql;
 
-        if (msgDataArray.length == 4) {
-            try {
-                String timeStamp = msgDataArray[0];
-                String stateBefore = msgDataArray[1];
-                String state = msgDataArray[2];
-                Integer changedTo = Integer.parseInt(msgDataArray[3]);
+        try {
 
-                db.execSQL("INSERT INTO changelog (timestamp, statebefore, state, changedto) " +
-                        "VALUES ('" + timeStamp + "', '" + stateBefore + "', '" + state + "', " + changedTo + ");"
-                );
-            } catch (NumberFormatException e) {
-                Log.d(TAG, "NumberFormatException: " + e);
+            JSONObject values = (JSONObject) data.get("values");
+            table = (String) data.get("table");
+
+            for (int i = 0; i<values.names().length(); i++) {
+                keys += values.names().getString(i) + ", ";
+                vals += "'" + values.get(values.names().getString(i)).toString() + "', ";
             }
 
+            keys = keys.substring(0, keys.length() - 2);
+            vals = vals.substring(0, vals.length() - 2);
+
+            sql = "INSERT INTO " + table + " (" + keys +  ") VALUES (" + vals + ");";
+            try {
+                db.execSQL(sql);
+                Log.d(TAG, sql);
+            } catch (Exception e){
+                Log.d(TAG, e.toString());
+            }
+
+        } catch (JSONException e) {
+                e.printStackTrace();
+            Log.d(TAG, "JSON exc.: " + e.toString());
         }
 
         db.execSQL("DELETE FROM changelog WHERE timestamp <= date('now', '-14 day');");
+
+        db.close();
     }
 
     // Getting Count
@@ -75,6 +96,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         int retCount = cursor.getCount();
         cursor.close();
+        db.close();
 
         return retCount;
     }

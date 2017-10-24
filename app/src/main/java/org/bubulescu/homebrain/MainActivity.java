@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +17,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     public final static String DELIMITER = "____";
     public final static String CONFIGS = "config.ini";
     private final static  String TAG = "MainActivity_LOG_";
+    private static Context mContext;
 
     private Handler handler = new Handler();
     private EditText emailInput, codeInput;
@@ -34,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        final Context mContext = this;
+        mContext = this;
         super.onCreate(savedInstanceState);
 
         registerMyReceiver();
@@ -62,6 +67,10 @@ public class MainActivity extends AppCompatActivity {
         //webApp.loadUrl("http://homebrain.bubulescu.org/app/home.php");
 
         showLogin();
+    }
+
+    public static Context getContext(){
+        return mContext;
     }
 
     protected void showLogin() {
@@ -141,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById((R.id.webView)).setVisibility(View.VISIBLE);
 
-        if ( userOK() ) {
+        if ( user.OK() ) {
             startWebApp();
         }
     }
@@ -170,10 +179,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, log + fnToRun);
     }
 
-    public boolean userOK() {
-        return (user.isRegistered() && user.isVerified());
-    }
-
     protected void registerMyReceiver() {
 
         broadcastReceiver = new BroadcastReceiver() {
@@ -183,7 +188,16 @@ public class MainActivity extends AppCompatActivity {
                 if ( arg.hasExtra("message") ) {
                     Log.d(TAG, "FCM broadcast: " + arg.getStringExtra("message"));
 
-                // run jscript function on WebView
+                    // configs
+                } else if ( arg.hasExtra("configs") ) {
+                    try {
+                        JSONObject configs = new JSONObject(arg.getStringExtra("configs"));
+                        user.configure(configs);
+                    } catch (JSONException e) {
+                        Log.d(TAG, e.toString());
+                    }
+
+                    // run jscript function on WebView
                 } else if ( arg.hasExtra("runOnWebView") ) {
                     runOnWebView(arg.getStringExtra("runOnWebView"));
                 }
@@ -199,5 +213,40 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
        if ( broadcastReceiver != null ) unregisterReceiver(broadcastReceiver);
+    }
+
+    public static void sendBcastMsg(Context c, String bcasts) {
+
+        Intent intent = new Intent();
+        intent.setAction(MainActivity.SENDMESAGGE);
+
+        try {
+            JSONObject bcMessages = new JSONObject(bcasts);
+            for (int i = 0; i<bcMessages.names().length(); i++) {
+                intent.putExtra(bcMessages.names().getString(i), bcMessages.get(bcMessages.names().getString(i)).toString());
+                Log.d(TAG, bcMessages.names().getString(i) + ", " + bcMessages.get(bcMessages.names().getString(i)).toString());
+
+                c.sendBroadcast(intent);
+            }
+        } catch (JSONException e) {
+            Log.d(TAG, e.toString());
+        }
+    }
+
+    public static void savePreferences(String configs) {
+
+        String keys = "", vals = "";
+        SharedPreferences.Editor edit = mContext.getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE).edit();
+
+        try {
+            JSONObject prefs = new JSONObject(configs);
+            for (int i = 0; i<prefs.names().length(); i++) {
+                edit.putString(prefs.names().getString(i), prefs.get(prefs.names().getString(i)).toString());
+                Log.d(TAG, prefs.names().getString(i) + ", " + prefs.get(prefs.names().getString(i)).toString());
+            }
+            edit.commit();
+        } catch (JSONException e) {
+            Log.d(TAG, e.toString());
+        }
     }
 }

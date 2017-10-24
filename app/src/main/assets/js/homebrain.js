@@ -1,9 +1,8 @@
 var updates;
 var loaded = false;
-var pages = ["multimedia", "lan", "grijanje", "vrt", "home"];
 
 var page = {
-	list: pages,
+	list: [],
 	curr: function() {
 		return $(":mobile-pagecontainer").pagecontainer("getActivePage").prop("id");
 	},
@@ -24,10 +23,10 @@ function toast(msg) {
 	} else {
 		console.log("Toasting: " + msg);
 	}
-	
 }
 
 function speak(msg) {
+
 	if ( typeof Android !== 'undefined' ) {
 		Android.speak(tekst);
 	} else {
@@ -35,7 +34,8 @@ function speak(msg) {
 	}
 }
 
-function loading(msg) {		
+function loading(msg) {
+
 	if ( typeof msg !== 'undefined' && msg !== false ) {
 		$("#overlay").fadeIn(96);
 	} else  {
@@ -44,7 +44,7 @@ function loading(msg) {
 	
 }
 
-function connectionIs(connType) {
+function notice(connType) {
 	$("#connectionType").html("&nbsp;" + connType);
 }
 
@@ -68,7 +68,6 @@ function slideLeft(toPage) {
 		});
 }
 
-
 function prependHeader(item) {
 
 	var pageTitle = item.data("title");
@@ -77,20 +76,28 @@ function prependHeader(item) {
 	var prevPage = $("#" + page.prev(pageId));
 	var nextPage = $("#" + page.next(pageId));
 
-	item.prepend('' + "\n" +
+	var header = '' + "\n" +
 	'<!-- header -->' + "\n" +
-	'<div data-role="header">' + "\n" +
-	'		<a href="#" class="ui-btn ui-btn-active ui-icon-arrow-l ui-btn-icon-left" onclick="slideRight(\'' + prevPage.attr("id") + '\')">' + prevPage.data("title") + '</a>' + "\n" +
-	'		<h1>' + pageTitle + '</h1>' + "\n" +
-	'		<a href="#" class="ui-btn ui-btn-active ui-icon-arrow-r ui-btn-icon-right" onclick="slideLeft(\'' + nextPage.attr("id") + '\')">' + nextPage.data("title") + '</a>' + "\n" +
-	'</div><!-- /header -->' + "\n" +
-	'');
+	'<div data-role="header">' + "\n";
+	if ( prevPage.attr("id") != pageId ) {
+		header += '		<a href="#" class="ui-btn ui-btn-active ui-icon-arrow-l ui-btn-icon-left" onclick="slideRight(\'' + 
+							prevPage.attr("id") + '\')">' + prevPage.data("title") + '</a>' + "\n";
+	}
+	header += '		<h1>' + pageTitle + '</h1>' + "\n";
+	if ( (page.list.length == 2 && ($.inArray(pageId, page.list) == 1)) || nextPage.attr("id") != pageId ) {
+		header += '		<a href="#" class="ui-btn ui-btn-active ui-icon-arrow-r ui-btn-icon-right" onclick="slideLeft(\'' + 
+							nextPage.attr("id") + '\')">' + nextPage.data("title") + '</a>' + "\n";
+	}
+	header += '</div><!-- /header -->' + "\n";
+
+	item.prepend(header);
 }
 
-function go(toPage) {
+function go(toPage, allowedPages) {
 
 	if ( !loaded ) {
 		loaded = true;
+		page.list = (allowedPages == null) ? ["home", "multimedia", "grijanje"] : allowedPages;
 
 		$.each(page.list, function() {
 			prependHeader($("#" + this));
@@ -116,15 +123,15 @@ function go(toPage) {
 		*/
 	}
 
-	
 	toPage = ( typeof toPage === 'undefined' ) ? page.list[0] : toPage;
-	
+
+	if ( $.inArray(toPage, page.list) < 0 ) return;
+
 	$(":mobile-pagecontainer").pagecontainer("change", "#" + toPage, {
 		transition: "slideup",
 		reverse: false,
 		changeHash: false
 	});
-
 }
 
 

@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">HomeBrain</string>
+
+    <string name="urlAway">hbr.bubulescu.org</string>
+    <string name="protocolAway">https</string>
+    <string name="portAway">9343</string>
+    <string name="connAway">Away</string>
+
+    <string name="urlHome">10.10.10.10</string>
+    <string name="protocolHome">http</string>
+    <string name="portHome">80</string>
+    <string name="connHome">Home</string>
+
+    <string name="connNone">no connection..</string>
 </resources>

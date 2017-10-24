@@ -15,17 +15,24 @@ import android.widget.Toast;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
-    private static final String TAG = "FCM_LOG";
+    private static final String TAG = "FCM_LOG_";
     private String msgTitle;
     private String msgBody;
     private String msgData;
     private int countRec;
 
-    private void passMessageToActivity(String message) {
+    private void passMessageToMainActivity(String message) {
+        passMessageToMainActivity("message", message);
+    }
+
+    private void passMessageToMainActivity(String key, String message) {
         Intent intent = new Intent();
         intent.setAction(MainActivity.SENDMESAGGE);
-        intent.putExtra("message", message);
+        intent.putExtra(key, message);
         sendBroadcast(intent);
     }
 
@@ -34,11 +41,11 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
 
         //notification message
         if (remoteMessage.getNotification() != null) {
+            msgTitle = remoteMessage.getNotification().getTitle();
             msgBody = remoteMessage.getNotification().getBody();
-            createNotification(msgBody);
+            createNotification(msgTitle, msgBody);
 
-            Log.d(TAG, "From: " + remoteMessage.getFrom());
-            Log.d(TAG, "Notification Message: " + msgBody);
+            Log.d(TAG, "Notification from: " + remoteMessage.getFrom() + " " + msgTitle + ": " + msgBody);
         }
         //data message
         else {
@@ -48,14 +55,26 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
 
             createNotification(msgTitle, msgBody);
 
-            if (remoteMessage.getData().get("data") != null) {
+            if (remoteMessage.getData().get("configs") != null) {
+                MainActivity.savePreferences(remoteMessage.getData().get("configs"));
+
+            } else if (remoteMessage.getData().get("data") != null) {
+                try {
+                    JSONObject data = new JSONObject(remoteMessage.getData().get("data"));
+
+                    db.updateDb(data);
+                } catch (JSONException e) {
+                    Log.d(TAG, "DATA msg - no JSON " + e.toString());
+                }
+                /*
                 msgData = remoteMessage.getData().get("data");
-                passMessageToActivity(msgData);
+                passMessageToMainActivity(msgData);
 
                 String[] msgDataArray = msgData.split("\\|");
                 //String[] msgDataArray = {"first", "second"};
                 Log.d(TAG, "msgDataArray.length = " + msgDataArray.length);
                 db.updateDb(msgDataArray);
+                */
             }
 
             countRec = db.getCount();

@@ -17,37 +17,62 @@ import java.net.Socket;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class HttpReqHelper {
 
     private static final String TAG = "HttpReqHelper_LOG_";
 
-    private static String baseUrlAway = "hbr.bubulescu.org";
-    private static String baseUrlHome = "10.10.10.10";
+    private static String protocolAway, urlAway, connAway;
+    private static String protocolHome, urlHome, connHome;
+    private static String connNone;
+    private static Integer portAway, portHome;
     private String baseUrl;
 
     Context mContext;
 
-    HttpReqHelper (Context c) { mContext = c; }
+    HttpReqHelper (Context c) {
+
+        mContext = c;
+        setPrefs(mContext);
+    }
+
+    public static void setPrefs(Context c) {
+
+        protocolAway = c.getString(R.string.protocolAway);
+        urlAway = c.getString(R.string.urlAway);
+        portAway = Integer.parseInt(c.getString(R.string.portAway));
+        connAway = c.getString(R.string.connAway);
+
+        protocolHome = c.getString(R.string.protocolHome);
+        urlHome = c.getString(R.string.urlHome);
+        portHome = Integer.parseInt(c.getString(R.string.portHome));
+        connHome = c.getString(R.string.connHome);
+
+        connNone = c.getString(R.string.connNone);
+    }
 
     public static String checkConn(Context c) {
 
         String connIs;
+        setPrefs(c);
 
-        if (isLive(baseUrlHome, 9343, 128)) {
-            connIs = "Net";
-        } else connIs = "LAN";
+        if ( isLive(urlAway, portAway, 128) ) {
+            connIs = connAway;
+        } else if ( isLive(urlHome, portHome, 128) ) {
+            connIs = connHome;
+        } else connIs = connNone;
 
-        Intent intent = new Intent();
-        intent.setAction(MainActivity.SENDMESAGGE);
-        intent.putExtra("runOnWebView", "connectionIs('" + connIs + "')");
-        c.sendBroadcast(intent);
+        MainActivity.sendBcastMsg(c, new String("{\"runOnWebView\": \"notice('" + connIs + "')\"}"));
+
+        Log.d(TAG, "{\"runOnWebView\": \"notice('" + connIs + "')\"}");
 
         return connIs;
     };
 
-    public void sendReq(final String arguments) {
+    public void sendReq(final String name, final String verb, final Map<String, String> arguments) {
 
         new Thread(new Runnable() {
             @Override
@@ -55,41 +80,46 @@ public class HttpReqHelper {
 
                 String connIs = checkConn(mContext);
 
-                if ( connIs == "LAN") baseUrl = "http://" + baseUrlHome + "/api/";
-                else baseUrl = "https://" + baseUrlAway + ":9343/api/";
+                if ( connIs == connHome ) baseUrl = protocolHome + "://" + urlHome + ":" + portHome;
+                else if ( connIs == connAway ) baseUrl = protocolAway + "://" + urlAway + ":" + portAway;
 
-                try {
-                    URL url = new URL(baseUrl + arguments);
-                    HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
-                    httpCon.setReadTimeout(10000);
-                    httpCon.setConnectTimeout(15000);
-                    httpCon.setRequestMethod("POST");
-                    httpCon.setDoInput(true);
-                    httpCon.setDoOutput(true);
+                if ( connIs == connHome || connIs == connAway ) {
+                    try {
+                        URL url = new URL(baseUrl + "/api/" + name + "/" + verb);
+                        HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+                        httpCon.setReadTimeout(10000);
+                        httpCon.setConnectTimeout(15000);
+                        httpCon.setRequestMethod("POST");
+                        httpCon.setDoInput(true);
+                        httpCon.setDoOutput(true);
 
-                    Uri.Builder builder = new Uri.Builder().appendQueryParameter("token", getToken());
-                    String query = builder.build().getEncodedQuery();
+                        Uri.Builder builder = new Uri.Builder().appendQueryParameter("secToken", getToken());
 
-                    OutputStream os = httpCon.getOutputStream();
+                        for ( Map.Entry<String, String> arg : arguments.entrySet() ) {
+                            builder.appendQueryParameter(arg.getKey(), arg.getValue());
+                        }
 
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-                    writer.write(query);
-                    writer.flush();
-                    writer.close();
-                    os.close();
+                        String query = builder.build().getEncodedQuery();
 
-                    httpCon.getInputStream();
+                        OutputStream os = httpCon.getOutputStream();
 
-                    Log.d(TAG, "HttpResponse: " + httpCon.getResponseMessage() + " HttpRequested: " + baseUrl + arguments);
-                } catch (MalformedURLException ex) {
-                    Log.d(TAG, Log.getStackTraceString(ex));
-                } catch (IOException ex) {
-                    Log.d(TAG, Log.getStackTraceString(ex));
+                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+                        writer.write(query);
+                        writer.flush();
+                        writer.close();
+                        os.close();
+
+                        httpCon.getInputStream();
+
+                        Log.d(TAG, "HttpResponse: " + httpCon.getResponseMessage() + " HttpRequested: " + baseUrl + arguments);
+                    } catch (MalformedURLException ex) {
+                        Log.d(TAG, Log.getStackTraceString(ex));
+                    } catch (IOException ex) {
+                        Log.d(TAG, Log.getStackTraceString(ex));
+                    }
                 }
             }
         }).start();
-        /*
-        */
     }
 
     private String getToken() {
