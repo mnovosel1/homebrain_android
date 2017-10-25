@@ -30,7 +30,7 @@ public class DownloadFile {
         DownloadManager.Request request = new DownloadManager.Request(uri);
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)
                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-               .setDestinationInExternalPublicDir("/homebrain", dlFilename);
+               .setDestinationInExternalFilesDir(context, "hbrain", dlFilename);
 
         downloadmanager.enqueue(request);
     }
