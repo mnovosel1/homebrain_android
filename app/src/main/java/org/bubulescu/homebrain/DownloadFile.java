@@ -6,6 +6,12 @@ import android.net.Uri;
 import android.os.Environment;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 
 public class DownloadFile {
@@ -33,5 +39,32 @@ public class DownloadFile {
                .setDestinationInExternalFilesDir(context, "hbrain", dlFilename);
 
         downloadmanager.enqueue(request);
+
+    }
+
+    private boolean moveToInternal(File src) throws IOException {
+
+        File dst = HbApp.getAppContext().getFilesDir();
+
+        if(src.getAbsolutePath().toString().equals(dst.getAbsolutePath().toString())){
+
+            return true;
+
+        } else {
+
+            InputStream is = new FileInputStream(src);
+            OutputStream os = new FileOutputStream(dst);
+
+            byte[] buff=new byte[1024];
+            int len;
+
+            while((len=is.read(buff))>0){
+                os.write(buff,0,len);
+            }
+            src.delete();
+            is.close();
+            os.close();
+        }
+        return true;
     }
 }

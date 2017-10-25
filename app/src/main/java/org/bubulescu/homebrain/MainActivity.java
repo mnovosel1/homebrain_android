@@ -1,5 +1,6 @@
 package org.bubulescu.homebrain;
 
+import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +27,14 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText emailInput, codeInput;
     private WebView webApp = null;
     private BroadcastReceiver broadcastReceiver = null;
+    private BroadcastReceiver dlManagerReceiver = null;
     private DatabaseHandler db;
     private User user;
     private boolean webAppLoaded = false;
@@ -237,10 +247,48 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        dlManagerReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(final Context context, Intent arg) {
+
+                File dst = getFilesDir();
+                File src = getExternalFilesDir(null);
+                InputStream is;
+                OutputStream os;
+
+                try {
+
+                    is = new FileInputStream(src);
+                    os = new FileOutputStream(dst);
+
+                    byte[] buff=new byte[1024];
+                    int len;
+
+                    while((len=is.read(buff))>0){
+                        os.write(buff,0,len);
+                    }
+
+
+                    src.delete();
+                    
+                    is.close();
+                    os.close();
+
+                } catch (FileNotFoundException e) {
+
+                    e.printStackTrace();
+                } catch (IOException e) {
+
+                    e.printStackTrace();
+                }
+
+
+            }
+        };
+
         // registering BroadcastReceiver
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(SENDMESAGGE);
-        registerReceiver(broadcastReceiver, intentFilter);
+        registerReceiver(broadcastReceiver, new IntentFilter(SENDMESAGGE));
+        registerReceiver(dlManagerReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
     @Override
     protected void onDestroy() {
