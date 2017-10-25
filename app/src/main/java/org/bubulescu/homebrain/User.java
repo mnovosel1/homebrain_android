@@ -16,15 +16,15 @@ public class User {
 
     private static final String TAG = "User_LOG_";
 
-    private Context mContext;
+    private Context context;
     private SharedPreferences configs;
     private HttpReqHelper httpReq;
 
-    public User(Context context) {
+    public User(Context ctx) {
 
-        mContext = context;
-        configs = mContext.getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE);
-        httpReq = new HttpReqHelper(mContext);
+        context = ctx;
+        configs = context.getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE);
+        httpReq = new HttpReqHelper(context);
     }
 
     public boolean isRegistered() {
@@ -40,16 +40,15 @@ public class User {
         String token = FirebaseInstanceId.getInstance().getToken();
         String regData = "{\"email\": \"" + email + "\", \"token\": \"" + token + "\"}";
 
-        httpReq.sendReq("fcm", "reg", regData);
+        httpReq.sendReq("fcm", "reg", regData, new String("registration"));
 
         MainActivity.saveConfigs(regData);
     }
 
     public void verify(String code) {
 
-        httpReq.sendReq("fcm", "verify", new String("{\"code\": \"" + code + "\", \"email\": \""+ email() +"\"}"));
-
-        Toast.makeText(mContext, "Please wait for verification...", Toast.LENGTH_LONG).show();
+        httpReq.sendReq("fcm", "verify", new String("{\"code\": \"" + code + "\", \"email\": \""+ email() +"\"}"), new String("verification"));
+        Toast.makeText(context, context.getString(R.string.waitForVerification), Toast.LENGTH_LONG).show();
     }
 
     public String email() {
@@ -57,6 +56,6 @@ public class User {
     }
 
     public String pages() {
-        return MainActivity.getConfig("pages");
+        return MainActivity.getConfig(context, "pages");
     }
 }

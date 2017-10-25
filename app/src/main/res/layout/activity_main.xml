@@ -17,90 +17,81 @@
         tools:context=".MainActivity"
         >
 
-        <TextView
+        <ImageView
+            android:id="@+id/HomeBrainImg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Upišite E-mail"
-            android:id="@+id/emailText1"
-            android:layout_marginTop="67dp"
-            android:layout_alignParentTop="true"
+            android:layout_marginTop="70dp"
+            android:src="@drawable/homebrain"
+            android:scaleType="centerInside"
             android:layout_centerHorizontal="true"
-            android:textSize="30dp"
+            />
+
+        <TextView
+            android:id="@+id/HomeBrainTxt"
+            android:layout_below="@+id/HomeBrainImg"
+            android:textColor="@color/colorGreen"
+            android:text="HomeBrain"
+            android:textSize="90px"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+
+        <TextView
+            android:id="@+id/wait"
+            android:layout_below="@+id/HomeBrainTxt"
+            android:text="@string/justWait"
+            android:textSize="70px"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             />
 
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/email"
-            android:layout_below="@+id/emailText1"
-            android:layout_marginTop="67dp"
+            android:layout_below="@+id/HomeBrainTxt"
+            android:layout_marginTop="30dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:hint="E-mail"
-            android:inputType="textEmailAddress"
-            android:imeOptions="actionDone"
+            android:hint="Enter valid E-mail"
+            android:inputType="textWebEmailAddress"
+            android:imeOptions="actionSend"
             android:maxLines="1"
-            />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Prijava"
-            android:id="@+id/emailButton"
-            android:layout_below="@+id/email"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="50dp"
-            />
-
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Upišite CODE:"
-            android:id="@+id/codeText1"
-            android:layout_marginTop="70dp"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:textSize="30dp"
             />
 
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/code"
-            android:layout_below="@+id/codeText1"
-            android:layout_marginTop="30dp"
+            android:layout_below="@+id/HomeBrainTxt"
+            android:layout_marginTop="20dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:hint="SuperSecretCODE"
-            android:inputType="text"
-            android:imeOptions="actionDone"
+            android:hint="Enter supersecret CODE"
+            android:inputType="textNoSuggestions|textVisiblePassword"
+            android:imeOptions="actionSend"
             android:maxLines="1"
             />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/codeText2"
+            android:id="@+id/codeText"
             android:layout_below="@+id/code"
             android:layout_marginTop="5dp"
             android:layout_centerHorizontal="true"
             android:textSize="14dp"
-            />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="OK"
-            android:id="@+id/codeButton"
-            android:layout_below="@+id/codeText2"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="60dp"
             />
 
     </RelativeLayout>

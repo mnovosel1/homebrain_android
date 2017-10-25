@@ -7,15 +7,19 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,10 +27,11 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
+    public Context context;
+
     public final static String SENDMESAGGE = "MSGING";
     public final static String CONFIGS = "config.ini";
     private final static  String TAG = "MA_LOG_";
-    private static Context mContext;
 
     private Handler handler = new Handler();
     private EditText emailInput, codeInput;
@@ -38,13 +43,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mContext = this;
+
         super.onCreate(savedInstanceState);
-
+        context = HbApp.getAppContext();
         registerMyReceiver();
-
         setContentView(R.layout.activity_main);
-
         user = new User(this);
 
         webApp = (WebView) findViewById(R.id.webView);
@@ -57,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         webApp.getSettings().setLoadWithOverviewMode(true);
         webApp.getSettings().setUseWideViewPort(true);
         webApp.getSettings().setJavaScriptEnabled(true);
-        webApp.addJavascriptInterface(new WebAppInterface(this), "Android");
+        webApp.addJavascriptInterface(new WebAppInterface(), "Android");
         webApp.getSettings().setAllowUniversalAccessFromFileURLs(true);
 
         //webApp.loadDataWithBaseURL();
@@ -68,91 +71,97 @@ public class MainActivity extends AppCompatActivity {
         showLogin();
     }
 
-    public static Context getContext(){
-        return mContext;
-    }
-
     protected void showLogin() {
         if (!user.isRegistered()) {
             showEmailInput();
         } else if (!user.isVerified()) {
             showCodeInput();
         } else {
-            showMain();
+            show("main");
+            startWebApp();
         }
     }
 
     protected void showEmailInput() {
 
-        findViewById(R.id.emailText1).setVisibility(View.VISIBLE);
-        findViewById(R.id.email).setVisibility(View.VISIBLE);
-        findViewById(R.id.emailButton).setVisibility(View.VISIBLE);
-
-        findViewById((R.id.codeText1)).setVisibility(View.GONE);
-        findViewById((R.id.codeText2)).setVisibility(View.GONE);
-        findViewById((R.id.code)).setVisibility(View.GONE);
-        findViewById((R.id.codeButton)).setVisibility(View.GONE);
-
-        findViewById((R.id.webView)).setVisibility(View.GONE);
+        show("email");
 
         emailInput = (EditText) findViewById(R.id.email);
-        Button prijaviBtn = (Button) findViewById(R.id.emailButton);
-
-        prijaviBtn.setOnClickListener(new View.OnClickListener() {
+        emailInput.requestFocus();
+        emailInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onClick(View v) {
-                String email = emailInput.getText().toString();
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handeld = false;
+                if (actionId == EditorInfo.IME_ACTION_SEND) {
 
-                Log.d("dbg_LOG_", email);
+                    String email = emailInput.getText().toString();
 
-                user.register(email);
-                showCodeInput();
+                    InputMethodManager im = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    im.hideSoftInputFromWindow(emailInput.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+                    show("wait");
+                    user.register(email);
+                }
+                return handeld;
             }
         });
     }
 
     protected void showCodeInput() {
 
-        findViewById(R.id.emailText1).setVisibility(View.GONE);
-        findViewById(R.id.email).setVisibility(View.GONE);
-        findViewById(R.id.emailButton).setVisibility(View.GONE);
-
-        findViewById((R.id.codeText1)).setVisibility(View.VISIBLE);
-        findViewById((R.id.codeText2)).setVisibility(View.VISIBLE);
-        findViewById((R.id.code)).setVisibility(View.VISIBLE);
-        findViewById((R.id.codeButton)).setVisibility(View.VISIBLE);
-
-        findViewById((R.id.webView)).setVisibility(View.GONE);
+        show("code");
 
         codeInput = (EditText) findViewById(R.id.code);
-
-        TextView notice = (TextView) findViewById(R.id.codeText2);
-        notice.setText("CODE je mailan na: " + user.email() + ".");
-
-        Button codeBtn = (Button) findViewById(R.id.codeButton);
-        codeBtn.setOnClickListener(new View.OnClickListener() {
+        codeInput.requestFocus();
+        codeInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onClick(View v) {
-                user.verify(codeInput.getText().toString());
-                showMain();
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handeld = false;
+                if (actionId == EditorInfo.IME_ACTION_SEND) {
+
+                    user.verify(codeInput.getText().toString());
+
+                    InputMethodManager im = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    im.hideSoftInputFromWindow(codeInput.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+                    show("wait");
+                }
+                return handeld;
             }
         });
+
+        TextView notice = (TextView) findViewById(R.id.codeText);
+        notice.setText(getString(R.string.codeSentTo) + " " + user.email());
+
     }
 
-    protected void showMain() {
+    protected void show(String show) {
 
-        findViewById(R.id.emailText1).setVisibility(View.GONE);
         findViewById(R.id.email).setVisibility(View.GONE);
-        findViewById(R.id.emailButton).setVisibility(View.GONE);
-
-        findViewById((R.id.codeText1)).setVisibility(View.GONE);
-        findViewById((R.id.codeText2)).setVisibility(View.GONE);
+        findViewById((R.id.wait)).setVisibility(View.GONE);
         findViewById((R.id.code)).setVisibility(View.GONE);
-        findViewById((R.id.codeButton)).setVisibility(View.GONE);
+        findViewById((R.id.codeText)).setVisibility(View.GONE);
+        findViewById((R.id.webView)).setVisibility(View.GONE);
 
-        findViewById((R.id.webView)).setVisibility(View.VISIBLE);
+        switch (show) {
 
-        startWebApp();
+            case "email":
+                findViewById((R.id.email)).setVisibility(View.VISIBLE);
+                break;
+
+            case "wait":
+                findViewById((R.id.wait)).setVisibility(View.VISIBLE);
+                break;
+
+            case "code":
+                findViewById((R.id.code)).setVisibility(View.VISIBLE);
+                findViewById((R.id.codeText)).setVisibility(View.VISIBLE);
+                break;
+
+            case "main":
+                findViewById((R.id.webView)).setVisibility(View.VISIBLE);
+                break;
+        }
     }
 
     private void startWebApp() {
@@ -170,27 +179,57 @@ public class MainActivity extends AppCompatActivity {
 
     public void runOnWebView(String fnToRun) {
 
-        String log = "javascript:";
+        String log = "";
 
         if ( webApp != null ) {
-            webApp.loadUrl("javascript:"+ fnToRun);
-        } else log = "!NOTRUNNED! " + log;
+            webApp.loadUrl("javascript:" + fnToRun);
+        } else log = "!NOTRUNNED! ";
 
-        Log.d(TAG + "runOnWebView", log + fnToRun);
+        Log.d(TAG + "runOnWV: ", log + fnToRun);
     }
 
     protected void registerMyReceiver() {
 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
-            public void onReceive(Context context, Intent arg) {
+            public void onReceive(final Context context, Intent arg) {
                 // just a message
                 if ( arg.hasExtra("message") ) {
                     Log.d(TAG + "regMyReceiver", "FCM broadcast: " + arg.getStringExtra("message"));
 
+                    // registration
+                } else if ( arg.hasExtra("registration") ) {
+
+                    if (("200").equals(arg.getStringExtra("registration"))) {
+                        showCodeInput();
+                    } else {
+                        showEmailInput();
+                        Toast.makeText(context, context.getString(R.string.tryAgain), Toast.LENGTH_LONG).show();
+                    }
+
+                    // verification
+                } else if ( arg.hasExtra("verification") ) {
+
+                    if (("200").equals(arg.getStringExtra("verification"))) {
+                        show("main");
+                    } else {
+                        showCodeInput();
+                        Toast.makeText(context, context.getString(R.string.tryAgain), Toast.LENGTH_LONG).show();
+                    };
+
                     // configs
                 } else if ( arg.hasExtra("configs") ) {
                     saveConfigs(arg.getStringExtra("configs"));
+
+                    sendBcastMsg("{'runOnWebView': 'window.location.reload(true)'}");
+                    Handler handler = new Handler(Looper.getMainLooper());
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            sendBcastMsg("{'runOnWebView': 'go(null, " + getConfig(context, "pages") + ")'}");
+                        }
+                    }, 512);
+
+                    Log.d(TAG + "cfgsReceived:", arg.getStringExtra("configs"));
 
                     // run jscript function on WebView
                 } else if ( arg.hasExtra("runOnWebView") ) {
@@ -210,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
        if ( broadcastReceiver != null ) unregisterReceiver(broadcastReceiver);
     }
 
-    public static void sendBcastMsg(Context c, String bcasts) {
+    public static void sendBcastMsg(String bcasts) {
 
         Intent intent = new Intent();
         intent.setAction(MainActivity.SENDMESAGGE);
@@ -221,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra(bcMessages.names().getString(i), bcMessages.get(bcMessages.names().getString(i)).toString());
                 Log.d(TAG + "sendBcastMsg", bcMessages.names().getString(i) + ", " + bcMessages.get(bcMessages.names().getString(i)).toString());
 
-                c.sendBroadcast(intent);
+                HbApp.getAppContext().sendBroadcast(intent);
             }
         } catch (JSONException e) {
             Log.d(TAG + "sendBcastMsg", e.toString());
@@ -230,10 +269,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static void saveConfigs(String configs) {
 
-        String keys = "", vals = "";
-        SharedPreferences.Editor edit = mContext.getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE).edit();
+        SharedPreferences.Editor edit = HbApp.getAppContext().getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE).edit();
 
-        Log.d("dbg_LOG_", configs);
         try {
             JSONObject cfgs = new JSONObject(configs);
 
@@ -243,14 +280,15 @@ public class MainActivity extends AppCompatActivity {
             }
             edit.commit();
             Log.d(TAG + "saveConfigs", "configs saved..");
+
         } catch (JSONException e) {
             Log.d(TAG + "saveConfigs", e.toString());
         }
     }
 
-    public static String getConfig(String cfgValue) {
-        SharedPreferences configs = mContext.getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE);
-
+    public static String getConfig(Context ctx, String cfgValue) {
+        SharedPreferences configs = ctx.getSharedPreferences(MainActivity.CONFIGS, Context.MODE_PRIVATE);
         return configs.getString(cfgValue, null);
     }
 }
+

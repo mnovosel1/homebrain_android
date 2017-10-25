@@ -12,4 +12,9 @@
     <string name="connHome">Home</string>
 
     <string name="connNone">no connection..</string>
+
+    <string name="codeSentTo">CODE was sent to</string>
+    <string name="justWait">wait..</string>
+    <string name="tryAgain">try again..</string>
+    <string name="waitForVerification">wait for verification..</string>
 </resources>

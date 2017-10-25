@@ -3,8 +3,11 @@ package org.bubulescu.homebrain;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,9 +24,9 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
+
+import static org.bubulescu.homebrain.R.id.url;
 
 public class HttpReqHelper {
 
@@ -34,34 +37,36 @@ public class HttpReqHelper {
     private static String connNone;
     private static Integer portAway, portHome;
     private String baseUrl;
+    private Context context;
 
-    Context mContext;
+    private Handler handler;
 
-    HttpReqHelper (Context c) {
+    public HttpReqHelper (Context ctx) {
 
-        mContext = c;
-        setPrefs(mContext);
+        context = ctx;
+        setPrefs(ctx);
+        handler = new Handler();
     }
 
-    public static void setPrefs(Context c) {
+    public static void setPrefs(Context ctx) {
 
-        protocolAway = c.getString(R.string.protocolAway);
-        urlAway = c.getString(R.string.urlAway);
-        portAway = Integer.parseInt(c.getString(R.string.portAway));
-        connAway = c.getString(R.string.connAway);
+        protocolAway = ctx.getString(R.string.protocolAway);
+        urlAway = ctx.getString(R.string.urlAway);
+        portAway = Integer.parseInt(ctx.getString(R.string.portAway));
+        connAway = ctx.getString(R.string.connAway);
 
-        protocolHome = c.getString(R.string.protocolHome);
-        urlHome = c.getString(R.string.urlHome);
-        portHome = Integer.parseInt(c.getString(R.string.portHome));
-        connHome = c.getString(R.string.connHome);
+        protocolHome = ctx.getString(R.string.protocolHome);
+        urlHome = ctx.getString(R.string.urlHome);
+        portHome = Integer.parseInt(ctx.getString(R.string.portHome));
+        connHome = ctx.getString(R.string.connHome);
 
-        connNone = c.getString(R.string.connNone);
+        connNone = ctx.getString(R.string.connNone);
     }
 
-    public static String checkConn(Context c) {
+    public static String checkConn(final Context ctx) {
 
         String connIs;
-        setPrefs(c);
+        setPrefs(ctx);
 
         if ( isLive(urlAway, portAway, 128) ) {
             connIs = connAway;
@@ -69,7 +74,7 @@ public class HttpReqHelper {
             connIs = connHome;
         } else connIs = connNone;
 
-        MainActivity.sendBcastMsg(c, new String("{\"runOnWebView\": \"notice('" + connIs + "')\"}"));
+        MainActivity.sendBcastMsg(new String("{\"runOnWebView\": \"notice('" + connIs + "')\"}"));
 
         Log.d(TAG + "checkConn", "{\"runOnWebView\": \"notice('" + connIs + "')\"}");
 
@@ -77,52 +82,70 @@ public class HttpReqHelper {
     };
 
     public void sendReq(final String name, final String verb, final String arguments) {
+        sendReq(name, verb, arguments, null);
+    }
+
+    public void sendReq(final String name, final String verb, final String arguments, final String bcMessage) {
 
         new Thread(new Runnable() {
             @Override
             public void run() {
 
-                String connIs = checkConn(mContext);
+                String connIs = checkConn(HbApp.getAppContext());
 
                 if ( connIs == connHome ) baseUrl = protocolHome + "://" + urlHome + ":" + portHome;
                 else if ( connIs == connAway ) baseUrl = protocolAway + "://" + urlAway + ":" + portAway;
 
                 if ( connIs == connHome || connIs == connAway ) {
+                    HttpURLConnection httpCon = null;
                     try {
+
                         URL url = new URL(baseUrl + "/api/" + name + "/" + verb);
-                        HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
-                        httpCon.setReadTimeout(10000);
-                        httpCon.setConnectTimeout(15000);
-                        httpCon.setRequestMethod("POST");
-                        httpCon.setDoInput(true);
-                        httpCon.setDoOutput(true);
+                        httpCon = (HttpURLConnection) url.openConnection();
 
-                        Uri.Builder builder = new Uri.Builder().appendQueryParameter("secToken", getToken());
+                        try {
+                            //httpCon.setReadTimeout(10000);
+                            //httpCon.setConnectTimeout(15000);
+                            httpCon.setRequestMethod("POST");
+                            httpCon.setDoInput(true);
+                            httpCon.setDoOutput(true);
 
-                        JSONObject args = new JSONObject(arguments);
-                        for (int i = 0; i<args.names().length(); i++) {
-                            builder.appendQueryParameter(args.names().getString(i), args.get(args.names().getString(i)).toString());
+                            Uri.Builder builder = new Uri.Builder().appendQueryParameter("secToken", getToken());
+
+                            JSONObject args = new JSONObject(arguments);
+                            for (int i = 0; i<args.names().length(); i++) {
+                                builder.appendQueryParameter(args.names().getString(i), args.get(args.names().getString(i)).toString());
+                            }
+
+                            String query = builder.build().getEncodedQuery();
+
+                            OutputStream os = httpCon.getOutputStream();
+
+                            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+                            writer.write(query);
+                            writer.flush();
+                            writer.close();
+                            os.close();
+
+                            httpCon.getInputStream();
+
+                            int response = httpCon.getResponseCode();
+                            Log.d(TAG + "sendReq", "HttpResponse: " + response + " - " + baseUrl + arguments);
+
+                            if ( bcMessage != null ) {
+                                MainActivity.sendBcastMsg(new String("{'" + bcMessage + "': '"+ response +"'}"));
+                            }
+
+                        } catch (MalformedURLException e) {
+                            Log.d(TAG + "sendReq", Log.getStackTraceString(e));
+                        } catch (JSONException e) {
+                            Log.d(TAG + "sendReq", Log.getStackTraceString(e));
+                        } finally {
+                            httpCon.disconnect();
                         }
 
-                        String query = builder.build().getEncodedQuery();
-
-                        OutputStream os = httpCon.getOutputStream();
-
-                        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-                        writer.write(query);
-                        writer.flush();
-                        writer.close();
-                        os.close();
-
-                        httpCon.getInputStream();
-
-                        Log.d(TAG + "sendReq", "HttpResponse: " + httpCon.getResponseMessage() + " HttpRequested: " + baseUrl + arguments);
-                    } catch (MalformedURLException e) {
-                        Log.d(TAG + "sendReq", Log.getStackTraceString(e));
                     } catch (IOException e) {
-                        Log.d(TAG + "sendReq", Log.getStackTraceString(e));
-                    } catch (JSONException e) {
-                        Log.d(TAG + "sendReq", Log.getStackTraceString(e));
+                        Log.d(TAG + "sendReq", "TimeOut? " + baseUrl + arguments);
                     }
                 }
             }

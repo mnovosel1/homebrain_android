@@ -48,7 +48,7 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
         }
         //data message
         else {
-            DatabaseHandler db = new DatabaseHandler(this);
+            DatabaseHandler db = new DatabaseHandler();
             boolean notify = false;
 
             msgTitle = remoteMessage.getData().get("title");
@@ -58,7 +58,7 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
 
             // CONFIGS data message
             if (remoteMessage.getData().get("configs") != null) {
-                MainActivity.saveConfigs(remoteMessage.getData().get("configs"));
+                passMessageToMainActivity("configs", remoteMessage.getData().get("configs"));
             }
 
             // DB UPDATE data message
@@ -129,6 +129,5 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         notificationManager.notify(0, mNotificationBuilder.build());
-
     }
 }

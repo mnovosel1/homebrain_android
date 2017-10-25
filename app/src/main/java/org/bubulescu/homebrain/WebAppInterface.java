@@ -14,26 +14,20 @@ import org.json.JSONObject;
 
 public class WebAppInterface {
 
-    Context mContext;
-
-    WebAppInterface(Context c) {
-        mContext = c;
-    }
-
     @JavascriptInterface
     public String checkConn() {
-        return HttpReqHelper.checkConn(mContext);
+        return HttpReqHelper.checkConn(HbApp.getAppContext());
     }
 
     @JavascriptInterface
     public void toast(String toast) {
-        Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show();
+        Toast.makeText(HbApp.getAppContext(), toast, Toast.LENGTH_SHORT).show();
     }
 
     @JavascriptInterface
     public JSONObject getUpdate() throws JSONException {
         // TODO getUpdates from database
-        DatabaseHandler dbh = new DatabaseHandler(mContext);
+        DatabaseHandler dbh = new DatabaseHandler();
 
         JSONObject ret = new JSONObject();
 
