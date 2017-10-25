@@ -18,6 +18,8 @@ import com.google.firebase.messaging.RemoteMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static org.bubulescu.homebrain.MainActivity.sendBcastMsg;
+
 public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
     private static final String TAG = "FCM_LOG_";
     private String msgTitle;
@@ -58,7 +60,19 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
 
             // CONFIGS data message
             if (remoteMessage.getData().get("configs") != null) {
-                passMessageToMainActivity("configs", remoteMessage.getData().get("configs"));
+                //passMessageToMainActivity("configs", remoteMessage.getData().get("configs"));
+
+                MainActivity.saveConfigs(remoteMessage.getData().get("configs"));
+
+                MainActivity.sendBcastMsg("{'runOnWebView': 'window.location.reload(true)'}");
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        sendBcastMsg("{'runOnWebView': 'go(null, " + MainActivity.getConfig(HbApp.getAppContext(), "pages") + ")'}");
+                    }
+                }, 512);
+
+                Log.d(TAG + "cfgsReceived:", remoteMessage.getData().get("configs"));
             }
 
             // DB UPDATE data message

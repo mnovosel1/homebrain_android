@@ -35,25 +35,16 @@ public class User {
         return (configs.getString("pages", null) != null);
     }
 
-    public void register(String email) {
-
-        String token = FirebaseInstanceId.getInstance().getToken();
-        String regData = "{\"email\": \"" + email + "\", \"token\": \"" + token + "\"}";
-
-        httpReq.sendReq("fcm", "reg", regData, new String("registration"));
-
-        MainActivity.saveConfigs(regData);
-    }
-
     public void verify(String code) {
 
-        httpReq.sendReq("fcm", "verify", new String("{\"code\": \"" + code + "\", \"email\": \""+ email() +"\"}"), new String("verification"));
+        httpReq.sendReq("fcm", "verify", ("{\"code\": \"" + code + "\", \"email\": \""+ email() +"\"}"), ("verification"));
         Toast.makeText(context, context.getString(R.string.waitForVerification), Toast.LENGTH_LONG).show();
     }
 
     public String email() {
         return configs.getString("email", null);
     }
+    public void setEmail(String email) { MainActivity.saveConfigs("{'email': '"+email+"'}"); }
 
     public String pages() {
         return MainActivity.getConfig(context, "pages");

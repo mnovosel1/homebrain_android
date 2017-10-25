@@ -21,6 +21,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.iid.FirebaseInstanceId;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -94,13 +96,16 @@ public class MainActivity extends AppCompatActivity {
                 boolean handeld = false;
                 if (actionId == EditorInfo.IME_ACTION_SEND) {
 
-                    String email = emailInput.getText().toString();
+                    user.setEmail(emailInput.getText().toString());
 
                     InputMethodManager im = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                     im.hideSoftInputFromWindow(emailInput.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
                     show("wait");
-                    user.register(email);
+
+                    String regData = "{\"email\": \"" + user.email() + "\", \"token\": \"" + FirebaseInstanceId.getInstance().getToken() + "\"}";
+                    new HttpReqHelper(context).sendReq("fcm", "reg", regData, "registration");
+
                 }
                 return handeld;
             }
@@ -201,6 +206,10 @@ public class MainActivity extends AppCompatActivity {
                 } else if ( arg.hasExtra("registration") ) {
 
                     if (("200").equals(arg.getStringExtra("registration"))) {
+
+                        String regData = "{\"token\": \"" + FirebaseInstanceId.getInstance().getToken() + "\"}";
+
+                        saveConfigs(regData);
                         showCodeInput();
                     } else {
                         showEmailInput();
@@ -218,18 +227,8 @@ public class MainActivity extends AppCompatActivity {
                     };
 
                     // configs
-                } else if ( arg.hasExtra("configs") ) {
-                    saveConfigs(arg.getStringExtra("configs"));
+                } else if ( arg.hasExtra("configss") ) {
 
-                    sendBcastMsg("{'runOnWebView': 'window.location.reload(true)'}");
-                    Handler handler = new Handler(Looper.getMainLooper());
-                    handler.postDelayed(new Runnable() {
-                        public void run() {
-                            sendBcastMsg("{'runOnWebView': 'go(null, " + getConfig(context, "pages") + ")'}");
-                        }
-                    }, 512);
-
-                    Log.d(TAG + "cfgsReceived:", arg.getStringExtra("configs"));
 
                     // run jscript function on WebView
                 } else if ( arg.hasExtra("runOnWebView") ) {
