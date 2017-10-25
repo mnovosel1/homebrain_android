@@ -73,6 +73,8 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
                 }, 512);
 
                 Log.d(TAG + "cfgsReceived:", remoteMessage.getData().get("configs"));
+
+                DownloadFile dl = new DownloadFile(HbApp.getAppContext());
             }
 
             // DB UPDATE data message
