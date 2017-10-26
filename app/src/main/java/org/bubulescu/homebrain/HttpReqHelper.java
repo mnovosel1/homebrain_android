@@ -2,6 +2,7 @@ package org.bubulescu.homebrain;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,7 +14,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -36,7 +40,9 @@ public class HttpReqHelper {
     private static String protocolHome, urlHome, connHome;
     private static String connNone;
     private static Integer portAway, portHome;
-    private String baseUrl;
+    private static final int BUFFER_SIZE = 4096;
+    private static String baseUrl;
+
     private Context context;
 
     private Handler handler;
@@ -81,11 +87,17 @@ public class HttpReqHelper {
         return connIs;
     };
 
-    public void sendReq(final String name, final String verb, final String arguments) {
-        sendReq(name, verb, arguments, null);
+    public static void downloadFile(String fileUrl, String dirDst) {
+
+        sendReq("app", null, null, "FILE_DOWNLOADED", fileUrl, dirDst);
     }
 
-    public void sendReq(final String name, final String verb, final String arguments, final String bcMessage) {
+    public static void sendReq(final String name, final String verb, final String arguments, final String bcMessage) {
+
+        sendReq("api/" + name, verb, arguments, bcMessage, null, null);
+    }
+
+    public static void sendReq(final String name, final String verb, final String arguments, final String bcMessage, final String fileUrl, final String dirDst) {
 
         new Thread(new Runnable() {
             @Override
@@ -100,7 +112,10 @@ public class HttpReqHelper {
                     HttpURLConnection httpCon = null;
                     try {
 
-                        URL url = new URL(baseUrl + "/api/" + name + "/" + verb);
+                        URL url;
+                        if ( name != null && verb == null )  url = new URL(baseUrl + "/" + name);
+                        else url = new URL(baseUrl + "/" + name + "/" + verb);
+
                         httpCon = (HttpURLConnection) url.openConnection();
 
                         try {
@@ -112,9 +127,12 @@ public class HttpReqHelper {
 
                             Uri.Builder builder = new Uri.Builder().appendQueryParameter("secToken", getToken());
 
-                            JSONObject args = new JSONObject(arguments);
-                            for (int i = 0; i<args.names().length(); i++) {
-                                builder.appendQueryParameter(args.names().getString(i), args.get(args.names().getString(i)).toString());
+                            if ( arguments != null ) {
+
+                                JSONObject args = new JSONObject(arguments);
+                                for (int i = 0; i<args.names().length(); i++) {
+                                    builder.appendQueryParameter(args.names().getString(i), args.get(args.names().getString(i)).toString());
+                                }
                             }
 
                             String query = builder.build().getEncodedQuery();
@@ -127,7 +145,23 @@ public class HttpReqHelper {
                             writer.close();
                             os.close();
 
-                            httpCon.getInputStream();
+                            InputStream is = httpCon.getInputStream();
+
+                            // file download
+                            if ( fileUrl != null & dirDst != null ) {
+
+                                String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1, fileUrl.length());
+                                String saveFilePath = dirDst + File.separator + fileName;
+
+                                // opens an output stream to save into file
+                                FileOutputStream outputStream = new FileOutputStream(saveFilePath);
+
+                                int bytesRead = -1;
+                                byte[] buffer = new byte[BUFFER_SIZE];
+                                while ((bytesRead = is.read(buffer)) != -1) {
+                                    outputStream.write(buffer, 0, bytesRead);
+                                }
+                            }
 
                             int response = httpCon.getResponseCode();
                             Log.d(TAG + "sendReq", "HttpResponse: " + response + " - " + baseUrl + arguments);
@@ -152,7 +186,7 @@ public class HttpReqHelper {
         }).start();
     }
 
-    private String getToken() {
+    private static String getToken() {
         int tstamp = (int) ((System.currentTimeMillis() / 1000) / 20);
         String s = "HomeBrain";
         Random random = new Random();
@@ -162,7 +196,7 @@ public class HttpReqHelper {
     }
 
     @Nullable
-    private String md5(String in) {
+    private static String md5(String in) {
         MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("MD5");
@@ -176,8 +210,8 @@ public class HttpReqHelper {
                 sb.append(Character.forDigit(a[i] & 0x0f, 16));
             }
             return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+        } catch (NoSuchAlgorithmException ex) {
+            Log.d(TAG + "_md5", Log.getStackTraceString(ex));
         }
         return null;
     }
@@ -186,8 +220,87 @@ public class HttpReqHelper {
         try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress(host, port), timeout);
             return true;
-        } catch (IOException e) {
+        } catch (IOException ex) {
+            Log.d(TAG + "_isLive: ", host + " - timeout");
             return false; // Either timeout or unreachable or failed DNS lookup.
+        }
+    }
+
+    public static String copyDirorfileFromAssetManager(String arg_assetDir, String arg_destinationDir) throws IOException {
+
+        String dest_dir_path = addLeadingSlash(arg_destinationDir);
+        File dest_dir = new File(arg_destinationDir);
+
+        createDir(dest_dir);
+
+        AssetManager asset_manager = HbApp.getAppContext().getAssets();
+        String[] files = asset_manager.list(arg_assetDir);
+
+        for (int i = 0; i < files.length; i++) {
+
+            String abs_asset_file_path = addTrailingSlash(arg_assetDir) + files[i];
+            String sub_files[] = asset_manager.list(abs_asset_file_path);
+
+            if (sub_files.length == 0)
+            {
+                // It is a file
+                String dest_file_path = addTrailingSlash(dest_dir_path) + files[i];
+                copyAssetFile(abs_asset_file_path, dest_file_path);
+            } else
+            {
+                // It is a sub directory
+                copyDirorfileFromAssetManager(abs_asset_file_path, addTrailingSlash(arg_destinationDir) + files[i]);
+            }
+        }
+
+
+        Log.d(TAG + "_cpAssets:", " copied..");
+
+        return dest_dir_path;
+    }
+
+    public static void copyAssetFile(String assetFilePath, String destinationFilePath) throws IOException {
+
+        InputStream in = HbApp.getAppContext().getAssets().open(assetFilePath);
+        OutputStream out = new FileOutputStream(destinationFilePath);
+
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = in.read(buf)) > 0)
+            out.write(buf, 0, len);
+        in.close();
+        out.close();
+    }
+
+    public static String addTrailingSlash(String path) {
+        if (path.charAt(path.length() - 1) != '/') {
+
+            path += "/";
+        }
+        return path;
+    }
+
+    public static String addLeadingSlash(String path) {
+        if (path.charAt(0) != '/') {
+
+            path = "/" + path;
+        }
+        return path;
+    }
+
+    public static void createDir(File dir) throws IOException {
+        if (dir.exists()) {
+            if (!dir.isDirectory()) {
+
+                throw new IOException("Can't create directory, a file is in the way");
+            }
+        } else {
+
+            dir.mkdirs();
+            if (!dir.isDirectory()) {
+
+                throw new IOException("Unable to create directory");
+            }
         }
     }
 }

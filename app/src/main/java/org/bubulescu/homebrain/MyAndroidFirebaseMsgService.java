@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
@@ -17,6 +18,9 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
 
 import static org.bubulescu.homebrain.MainActivity.sendBcastMsg;
 
@@ -64,17 +68,21 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
 
                 MainActivity.saveConfigs(remoteMessage.getData().get("configs"));
 
-                MainActivity.sendBcastMsg("{'runOnWebView': 'window.location.reload(true)'}");
+                Log.d(TAG + "cfgsReceived:", remoteMessage.getData().get("configs"));
+
+                HttpReqHelper.downloadFile(MainActivity.WEBAPP_UPDATE + "index.html", MainActivity.WEBAPP_DIR + "webapp");
+
                 Handler handler = new Handler(Looper.getMainLooper());
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        sendBcastMsg("{'runOnWebView': 'window.location.reload(true)'}");
+                    }
+                }, 512);
                 handler.postDelayed(new Runnable() {
                     public void run() {
                         sendBcastMsg("{'runOnWebView': 'go(null, " + MainActivity.getConfig(HbApp.getAppContext(), "pages") + ")'}");
                     }
-                }, 512);
-
-                Log.d(TAG + "cfgsReceived:", remoteMessage.getData().get("configs"));
-
-                DownloadFile dl = new DownloadFile(HbApp.getAppContext());
+                }, 1024);
             }
 
             // DB UPDATE data message
@@ -85,8 +93,8 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
                     notify = true;
 
                     Log.d(TAG + "onMsgRec", "Db records: " + db.getCount());
-                } catch (JSONException e) {
-                    Log.d(TAG + "onMsgRec", "DATA msg - no JSON " + e.toString());
+                } catch (JSONException ex) {
+                    Log.d(TAG + "onMsgRec", "DATA msg - no JSON " + Log.getStackTraceString(ex));
                 }
             }
 

@@ -7,7 +7,7 @@ import com.google.firebase.iid.FirebaseInstanceIdService;
 
 public class MyAndroidFirebaseInstanceIdService extends FirebaseInstanceIdService {
 
-    private static final String TAG = "FCMIID_LOG";
+    private static final String TAG = "FCMIID_LOG_";
 
     @Override
     public void onTokenRefresh() {

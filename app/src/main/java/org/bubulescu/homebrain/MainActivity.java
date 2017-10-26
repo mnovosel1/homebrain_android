@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     public final static String SENDMESAGGE = "MSGING";
     public final static String CONFIGS = "config.ini";
     private final static  String TAG = "MA_LOG_";
+    public final static String WEBAPP_UPDATE = "http://bubulescu.org/app/";
+    public final static String WEBAPP_DIR = "/data/data/" + HbApp.getAppContext().getPackageName() + "/files/";
 
     private Handler handler = new Handler();
     private EditText emailInput, codeInput;
@@ -56,8 +59,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        super.onCreate(savedInstanceState);
         context = HbApp.getAppContext();
+        Log.d(TAG + "_token:", getConfig(context, "token"));
+
+        File webappDir = new File(WEBAPP_DIR + "webapp");
+        if (!webappDir.exists()) {
+
+            webappDir.mkdir();
+
+            try {
+                HttpReqHelper.copyDirorfileFromAssetManager("webapp", MainActivity.WEBAPP_DIR + "webapp");
+            } catch (IOException ex) {
+                Log.d(TAG + "_cpAssets", Log.getStackTraceString(ex));
+            }
+        }
+
+        super.onCreate(savedInstanceState);
         registerMyReceiver();
         setContentView(R.layout.activity_main);
         user = new User(this);
@@ -77,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
         //webApp.loadDataWithBaseURL();
 
-        webApp.loadUrl("file:///android_asset/index.html");
+        webApp.loadUrl("file://" + WEBAPP_DIR + "webapp/index.html");
         //webApp.loadUrl("http://homebrain.bubulescu.org/app/home.php");
 
         showLogin();
@@ -104,7 +121,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handeld = false;
-                if (actionId == EditorInfo.IME_ACTION_SEND) {
+                String fcmToken = FirebaseInstanceId.getInstance().getToken();
+                if ( fcmToken != null && actionId == EditorInfo.IME_ACTION_SEND) {
 
                     user.setEmail(emailInput.getText().toString());
 
@@ -113,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
                     show("wait");
 
-                    String regData = "{\"email\": \"" + user.email() + "\", \"token\": \"" + FirebaseInstanceId.getInstance().getToken() + "\"}";
+                    String regData = "{\"email\": \"" + user.email() + "\", \"token\": \"" + fcmToken + "\"}";
                     new HttpReqHelper(context).sendReq("fcm", "reg", regData, "registration");
 
                 }
@@ -215,9 +233,11 @@ public class MainActivity extends AppCompatActivity {
                     // registration
                 } else if ( arg.hasExtra("registration") ) {
 
-                    if (("200").equals(arg.getStringExtra("registration"))) {
+                    String token = FirebaseInstanceId.getInstance().getToken();
 
-                        String regData = "{\"token\": \"" + FirebaseInstanceId.getInstance().getToken() + "\"}";
+                    if ( token != null && ("200").equals(arg.getStringExtra("registration"))) {
+
+                        String regData = "{\"token\": \"" + token + "\"}";
 
                         saveConfigs(regData);
                         showCodeInput();
@@ -251,8 +271,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onReceive(final Context context, Intent arg) {
 
-                File dst = getFilesDir();
-                File src = getExternalFilesDir(null);
+                File src = new File("/sdcard/Android/data/org.bubulescu.homebrain/files/", getConfig(context, "indexHtmlFileName"));
+                File dst = new File(getFilesDir(), "index.html");
+
+                Log.d(TAG + "dlMgRec - src: ", src.toString());
+                Log.d(TAG + "dlMgRec - dst: ", dst.toString());
+
                 InputStream is;
                 OutputStream os;
 
@@ -275,11 +299,9 @@ public class MainActivity extends AppCompatActivity {
                     os.close();
 
                 } catch (FileNotFoundException e) {
-
-                    e.printStackTrace();
+                    Log.d(TAG + "dlMgRec", Log.getStackTraceString(e));
                 } catch (IOException e) {
-
-                    e.printStackTrace();
+                    Log.d(TAG + "dlMgRec", Log.getStackTraceString(e));
                 }
 
 
@@ -293,7 +315,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-       if ( broadcastReceiver != null ) unregisterReceiver(broadcastReceiver);
+        if ( broadcastReceiver != null ) unregisterReceiver(broadcastReceiver);
+        if ( dlManagerReceiver != null ) unregisterReceiver(dlManagerReceiver);
     }
 
     public static void sendBcastMsg(String bcasts) {
@@ -326,7 +349,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG + "saveConfigs", cfgs.names().getString(i) + ", " + cfgs.get(cfgs.names().getString(i)).toString());
             }
             edit.commit();
-            Log.d(TAG + "saveConfigs", "configs saved..");
 
         } catch (JSONException e) {
             Log.d(TAG + "saveConfigs", e.toString());
