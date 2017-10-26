@@ -30,8 +30,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
-import static org.bubulescu.homebrain.R.id.url;
-
 public class HttpReqHelper {
 
     private static final String TAG = "HttpRH_LOG_";
@@ -82,8 +80,6 @@ public class HttpReqHelper {
 
         MainActivity.sendBcastMsg(new String("{\"runOnWebView\": \"notice('" + connIs + "')\"}"));
 
-        Log.d(TAG + "checkConn", "{\"runOnWebView\": \"notice('" + connIs + "')\"}");
-
         return connIs;
     };
 
@@ -94,10 +90,10 @@ public class HttpReqHelper {
 
     public static void sendReq(final String name, final String verb, final String arguments, final String bcMessage) {
 
-        sendReq("api/" + name, verb, arguments, bcMessage, null, null);
+        sendReq("api" + name, verb, arguments, bcMessage, null, null);
     }
 
-    public static void sendReq(final String name, final String verb, final String arguments, final String bcMessage, final String fileUrl, final String dirDst) {
+    public static void sendReq(final String name, final String verb, final String arguments, final String bcMessage, final String fileUpd, final String dirDst) {
 
         new Thread(new Runnable() {
             @Override
@@ -113,7 +109,7 @@ public class HttpReqHelper {
                     try {
 
                         URL url;
-                        if ( name != null && verb == null )  url = new URL(baseUrl + "/" + name);
+                        if ( name != null && verb == null )  url = new URL(baseUrl + "/" + name + "/" + fileUpd);
                         else url = new URL(baseUrl + "/" + name + "/" + verb);
 
                         httpCon = (HttpURLConnection) url.openConnection();
@@ -146,12 +142,12 @@ public class HttpReqHelper {
                             os.close();
 
                             InputStream is = httpCon.getInputStream();
+                            int response = httpCon.getResponseCode();
 
                             // file download
-                            if ( fileUrl != null & dirDst != null ) {
+                            if ( fileUpd != null & dirDst != null ) {
 
-                                String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1, fileUrl.length());
-                                String saveFilePath = dirDst + File.separator + fileName;
+                                String saveFilePath = dirDst + fileUpd;
 
                                 // opens an output stream to save into file
                                 FileOutputStream outputStream = new FileOutputStream(saveFilePath);
@@ -161,10 +157,15 @@ public class HttpReqHelper {
                                 while ((bytesRead = is.read(buffer)) != -1) {
                                     outputStream.write(buffer, 0, bytesRead);
                                 }
+
+                                Log.d(TAG + "sendReq", "HttpResponse: " + response + " - " + url);
+                                Log.d(TAG + "sendReq", "saved to: " + saveFilePath);
                             }
 
-                            int response = httpCon.getResponseCode();
-                            Log.d(TAG + "sendReq", "HttpResponse: " + response + " - " + baseUrl + arguments);
+                            else {
+                                Log.d(TAG + "sendReq", "HttpResponse: " + response + " - " + url + "/" + name + "/" + verb);
+                            }
+
 
                             if ( bcMessage != null ) {
                                 MainActivity.sendBcastMsg(new String("{'" + bcMessage + "': '"+ response +"'}"));
@@ -178,8 +179,8 @@ public class HttpReqHelper {
                             httpCon.disconnect();
                         }
 
-                    } catch (IOException e) {
-                        Log.d(TAG + "sendReq", "TimeOut? " + baseUrl + arguments);
+                    } catch (IOException ex) {
+                        Log.d(TAG + "sendReq", "TimeOut? " + baseUrl + Log.getStackTraceString(ex));
                     }
                 }
             }

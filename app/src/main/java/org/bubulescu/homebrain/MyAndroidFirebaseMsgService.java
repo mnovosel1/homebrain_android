@@ -16,12 +16,14 @@ import android.widget.Toast;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
 
+import static android.R.attr.data;
 import static org.bubulescu.homebrain.MainActivity.sendBcastMsg;
 
 public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
@@ -66,23 +68,34 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
             if (remoteMessage.getData().get("configs") != null) {
                 //passMessageToMainActivity("configs", remoteMessage.getData().get("configs"));
 
-                MainActivity.saveConfigs(remoteMessage.getData().get("configs"));
+                String received = remoteMessage.getData().get("configs");
 
-                Log.d(TAG + "cfgsReceived:", remoteMessage.getData().get("configs"));
+                // CONFIGS update
+                if ( !received.contains("{\"updates\":") ) {
 
-                HttpReqHelper.downloadFile(MainActivity.WEBAPP_UPDATE + "index.html", MainActivity.WEBAPP_DIR + "webapp");
+                    MainActivity.saveConfigs(remoteMessage.getData().get("configs"));
+                    Log.d(TAG + "cfgsReceived:", remoteMessage.getData().get("configs"));
+                }
 
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        sendBcastMsg("{'runOnWebView': 'window.location.reload(true)'}");
+                // WEBAPP update
+                else {
+
+                    try {
+                        JSONArray updates = (JSONArray) new JSONObject(remoteMessage.getData().get("configs")).get("updates");
+
+                        for (int i = 0; i < updates.length(); i++) {
+
+                            String updFile = updates.getString(i);
+
+                            String dlDir = MainActivity.WEBAPP_DIR;
+
+                            HttpReqHelper.downloadFile(updFile, dlDir);
+                        }
+                    } catch (JSONException ex) {
+                        Log.d(TAG + "_AppUpdateEX", Log.getStackTraceString(ex));
                     }
-                }, 512);
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        sendBcastMsg("{'runOnWebView': 'go(null, " + MainActivity.getConfig(HbApp.getAppContext(), "pages") + ")'}");
-                    }
-                }, 1024);
+                }
+                MainActivity.sendBcastMsg("{'runOnWebView': 'reloadWebApp'}");
             }
 
             // DB UPDATE data message

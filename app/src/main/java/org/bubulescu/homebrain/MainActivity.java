@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     public final static String CONFIGS = "config.ini";
     private final static  String TAG = "MA_LOG_";
     public final static String WEBAPP_UPDATE = "http://bubulescu.org/app/";
-    public final static String WEBAPP_DIR = "/data/data/" + HbApp.getAppContext().getPackageName() + "/files/";
+    public final static String WEBAPP_DIR = "/data/data/" + HbApp.getAppContext().getPackageName() + "/files/webapp/";
 
     private Handler handler = new Handler();
     private EditText emailInput, codeInput;
@@ -62,13 +62,13 @@ public class MainActivity extends AppCompatActivity {
         context = HbApp.getAppContext();
         Log.d(TAG + "_token:", getConfig(context, "token"));
 
-        File webappDir = new File(WEBAPP_DIR + "webapp");
+        File webappDir = new File(WEBAPP_DIR);
         if (!webappDir.exists()) {
 
             webappDir.mkdir();
 
             try {
-                HttpReqHelper.copyDirorfileFromAssetManager("webapp", MainActivity.WEBAPP_DIR + "webapp");
+                HttpReqHelper.copyDirorfileFromAssetManager("webapp", MainActivity.WEBAPP_DIR);
             } catch (IOException ex) {
                 Log.d(TAG + "_cpAssets", Log.getStackTraceString(ex));
             }
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
         //webApp.loadDataWithBaseURL();
 
-        webApp.loadUrl("file://" + WEBAPP_DIR + "webapp/index.html");
+        webApp.loadUrl("file://" + WEBAPP_DIR + "index.html");
         //webApp.loadUrl("http://homebrain.bubulescu.org/app/home.php");
 
         showLogin();
@@ -215,10 +215,32 @@ public class MainActivity extends AppCompatActivity {
         String log = "";
 
         if ( webApp != null ) {
-            webApp.loadUrl("javascript:" + fnToRun);
+            if ( fnToRun.equals("reloadWebApp") ) {
+                reloadWebApp(1024);
+                log = "reloadWebApp";
+            }
+            else {
+                webApp.loadUrl("javascript:" + fnToRun);
+                log = "javascript:" + fnToRun;
+            }
         } else log = "!NOTRUNNED! ";
 
-        Log.d(TAG + "runOnWV: ", log + fnToRun);
+        Log.d(TAG + "runOnWV", log);
+    }
+
+    public void reloadWebApp(int delay) {
+
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                webApp.loadUrl("javascript:window.location.reload(true)");
+            }
+        }, delay/2);
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                webApp.loadUrl("javascript:go(null, " + getConfig(HbApp.getAppContext(), "pages") + ")");
+            }
+        }, delay);
     }
 
     protected void registerMyReceiver() {
@@ -267,6 +289,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        /*
         dlManagerReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(final Context context, Intent arg) {
@@ -292,7 +315,6 @@ public class MainActivity extends AppCompatActivity {
                         os.write(buff,0,len);
                     }
 
-
                     src.delete();
                     
                     is.close();
@@ -303,20 +325,19 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Log.d(TAG + "dlMgRec", Log.getStackTraceString(e));
                 }
-
-
             }
         };
+        */
 
         // registering BroadcastReceiver
         registerReceiver(broadcastReceiver, new IntentFilter(SENDMESAGGE));
-        registerReceiver(dlManagerReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        //registerReceiver(dlManagerReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if ( broadcastReceiver != null ) unregisterReceiver(broadcastReceiver);
-        if ( dlManagerReceiver != null ) unregisterReceiver(dlManagerReceiver);
+        //if ( dlManagerReceiver != null ) unregisterReceiver(dlManagerReceiver);
     }
 
     public static void sendBcastMsg(String bcasts) {
