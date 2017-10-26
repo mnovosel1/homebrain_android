@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         context = HbApp.getAppContext();
-        Log.d(TAG + "_token:", getConfig(context, "token"));
+        //Log.d(TAG + "_token:", getConfig(context, "token"));
 
         File webappDir = new File(WEBAPP_DIR);
         if (!webappDir.exists()) {

@@ -90,7 +90,7 @@ public class HttpReqHelper {
 
     public static void sendReq(final String name, final String verb, final String arguments, final String bcMessage) {
 
-        sendReq("api" + name, verb, arguments, bcMessage, null, null);
+        sendReq("api/" + name, verb, arguments, bcMessage, null, null);
     }
 
     public static void sendReq(final String name, final String verb, final String arguments, final String bcMessage, final String fileUpd, final String dirDst) {
