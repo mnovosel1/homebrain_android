@@ -20,7 +20,7 @@ public class MyAndroidFirebaseInstanceIdService extends FirebaseInstanceIdServic
     /*
     private void registerToken(String token){
         Intent intent = new Intent();
-        intent.setAction(MainActivity.SENDMESAGGE);
+        intent.setAction(MainActivity.BROADCAST);
         intent.putExtra("token", token);
         sendBroadcast(intent);
     }

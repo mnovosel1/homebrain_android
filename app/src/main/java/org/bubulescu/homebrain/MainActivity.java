@@ -1,13 +1,11 @@
 package org.bubulescu.homebrain;
 
-import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
@@ -18,7 +16,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,19 +26,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 
 public class MainActivity extends AppCompatActivity {
 
     public Context context;
 
-    public final static String SENDMESAGGE = "MSGING";
+    public final static String BROADCAST = "broadcast";
+    public final static String UPDATE_FINISHED = "update_finished";
     public final static String CONFIGS = "config.ini";
     private final static  String TAG = "MA_LOG_";
     public final static String WEBAPP_UPDATE = "http://bubulescu.org/app/";
@@ -60,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         context = HbApp.getAppContext();
-        //Log.d(TAG + "_token:", getConfig(context, "token"));
 
         File webappDir = new File(WEBAPP_DIR);
         if (!webappDir.exists()) {
@@ -200,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
     private void startWebApp() {
         if ( webAppLoaded && user.isVerified() ) {
             runOnWebView("go(null, " + user.pages() + ")");
+            Log.d(TAG + "_token", getConfig(context, "token"));
         } else {
             Log.d(TAG + "startWebApp", "waiting...");
             handler.postDelayed (new Runnable() {
@@ -248,90 +241,63 @@ public class MainActivity extends AppCompatActivity {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(final Context context, Intent arg) {
-                // just a message
-                if ( arg.hasExtra("message") ) {
-                    Log.d(TAG + "regMyReceiver", "FCM broadcast: " + arg.getStringExtra("message"));
 
-                    // registration
-                } else if ( arg.hasExtra("registration") ) {
+                Log.d(TAG + "_bcast", arg.getAction());
 
-                    String token = FirebaseInstanceId.getInstance().getToken();
+                if ( arg.getAction().equals(BROADCAST)) {
 
-                    if ( token != null && ("200").equals(arg.getStringExtra("registration"))) {
+                    // just a message
+                    if ( arg.hasExtra("message") ) {
+                        Log.d(TAG + "regMyReceiver", "FCM broadcast: " + arg.getStringExtra("message"));
 
-                        String regData = "{\"token\": \"" + token + "\"}";
+                        // registration
+                    } else if ( arg.hasExtra("registration") ) {
 
-                        saveConfigs(regData);
-                        showCodeInput();
-                    } else {
-                        showEmailInput();
-                        Toast.makeText(context, context.getString(R.string.tryAgain), Toast.LENGTH_LONG).show();
+                        String token = FirebaseInstanceId.getInstance().getToken();
+
+                        if ( token != null && ("200").equals(arg.getStringExtra("registration"))) {
+
+                            String regData = "{\"token\": \"" + token + "\"}";
+
+                            saveConfigs(regData);
+                            showCodeInput();
+                        } else {
+                            showEmailInput();
+                            Toast.makeText(context, context.getString(R.string.tryAgain), Toast.LENGTH_LONG).show();
+                        }
+
+                        // verification
+                    } else if ( arg.hasExtra("verification") ) {
+
+                        if (("200").equals(arg.getStringExtra("verification"))) {
+                            show("main");
+                        } else {
+                            showCodeInput();
+                            Toast.makeText(context, context.getString(R.string.tryAgain), Toast.LENGTH_LONG).show();
+                        };
+
+                        // configs
+                    } else if ( arg.hasExtra("configss") ) {
+
+
+                        // run jscript function on WebView
+                    } else if ( arg.hasExtra("runOnWebView") ) {
+                        runOnWebView(arg.getStringExtra("runOnWebView"));
                     }
-
-                    // verification
-                } else if ( arg.hasExtra("verification") ) {
-
-                    if (("200").equals(arg.getStringExtra("verification"))) {
-                        show("main");
-                    } else {
-                        showCodeInput();
-                        Toast.makeText(context, context.getString(R.string.tryAgain), Toast.LENGTH_LONG).show();
-                    };
-
-                    // configs
-                } else if ( arg.hasExtra("configss") ) {
-
-
-                    // run jscript function on WebView
-                } else if ( arg.hasExtra("runOnWebView") ) {
-                    runOnWebView(arg.getStringExtra("runOnWebView"));
                 }
+
+                else if ( arg.getAction().equals(UPDATE_FINISHED) ) {
+                    reloadWebApp(1024);
+                }
+
             }
         };
-
-        /*
-        dlManagerReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(final Context context, Intent arg) {
-
-                File src = new File("/sdcard/Android/data/org.bubulescu.homebrain/files/", getConfig(context, "indexHtmlFileName"));
-                File dst = new File(getFilesDir(), "index.html");
-
-                Log.d(TAG + "dlMgRec - src: ", src.toString());
-                Log.d(TAG + "dlMgRec - dst: ", dst.toString());
-
-                InputStream is;
-                OutputStream os;
-
-                try {
-
-                    is = new FileInputStream(src);
-                    os = new FileOutputStream(dst);
-
-                    byte[] buff=new byte[1024];
-                    int len;
-
-                    while((len=is.read(buff))>0){
-                        os.write(buff,0,len);
-                    }
-
-                    src.delete();
-                    
-                    is.close();
-                    os.close();
-
-                } catch (FileNotFoundException e) {
-                    Log.d(TAG + "dlMgRec", Log.getStackTraceString(e));
-                } catch (IOException e) {
-                    Log.d(TAG + "dlMgRec", Log.getStackTraceString(e));
-                }
-            }
-        };
-        */
 
         // registering BroadcastReceiver
-        registerReceiver(broadcastReceiver, new IntentFilter(SENDMESAGGE));
-        //registerReceiver(dlManagerReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BROADCAST);
+        filter.addAction(UPDATE_FINISHED);
+        registerReceiver(broadcastReceiver, filter);
     }
     @Override
     protected void onDestroy() {
@@ -340,13 +306,18 @@ public class MainActivity extends AppCompatActivity {
         //if ( dlManagerReceiver != null ) unregisterReceiver(dlManagerReceiver);
     }
 
-    public static void sendBcastMsg(String bcasts) {
+    public static void sendBcastMsg(String msg)
+    {
+        sendBcastMsg(msg, BROADCAST);
+    }
+
+    public static void sendBcastMsg(String msg, String action) {
 
         Intent intent = new Intent();
-        intent.setAction(MainActivity.SENDMESAGGE);
+        intent.setAction(action);
 
         try {
-            JSONObject bcMessages = new JSONObject(bcasts);
+            JSONObject bcMessages = new JSONObject(msg);
             for (int i = 0; i<bcMessages.names().length(); i++) {
                 intent.putExtra(bcMessages.names().getString(i), bcMessages.get(bcMessages.names().getString(i)).toString());
                 Log.d(TAG + "sendBcastMsg", bcMessages.names().getString(i) + ", " + bcMessages.get(bcMessages.names().getString(i)).toString());

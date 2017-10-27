@@ -85,7 +85,8 @@ public class HttpReqHelper {
 
     public static void downloadFile(String fileUrl, String dirDst) {
 
-        sendReq("app", null, null, "FILE_DOWNLOADED", fileUrl, dirDst);
+        //sendReq("app", null, null, "FILE_DOWNLOADED", fileUrl, dirDst);
+        sendReq("app", null, null, null, fileUrl, dirDst);
     }
 
     public static void sendReq(final String name, final String verb, final String arguments, final String bcMessage) {

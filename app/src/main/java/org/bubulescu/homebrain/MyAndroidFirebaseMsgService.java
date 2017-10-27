@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
@@ -20,29 +19,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-
-import static android.R.attr.data;
-import static org.bubulescu.homebrain.MainActivity.sendBcastMsg;
-
 public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
     private static final String TAG = "FCM_LOG_";
     private String msgTitle;
     private String msgBody;
     private String msgData;
     private int countRec;
-
-    private void passMessageToMainActivity(String message) {
-        passMessageToMainActivity("message", message);
-    }
-
-    private void passMessageToMainActivity(String key, String message) {
-        Intent intent = new Intent();
-        intent.setAction(MainActivity.SENDMESAGGE);
-        intent.putExtra(key, message);
-        sendBroadcast(intent);
-    }
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -86,16 +68,17 @@ public class MyAndroidFirebaseMsgService extends FirebaseMessagingService {
                         for (int i = 0; i < updates.length(); i++) {
 
                             String updFile = updates.getString(i);
-
                             String dlDir = MainActivity.WEBAPP_DIR;
 
                             HttpReqHelper.downloadFile(updFile, dlDir);
                         }
+                        MainActivity.sendBcastMsg("{'update': 'finished'}", MainActivity.UPDATE_FINISHED);
+
                     } catch (JSONException ex) {
                         Log.d(TAG + "_AppUpdateEX", Log.getStackTraceString(ex));
                     }
                 }
-                MainActivity.sendBcastMsg("{'runOnWebView': 'reloadWebApp'}");
+                //MainActivity.sendBcastMsg("{'runOnWebView': 'reloadWebApp'}");
             }
 
             // DB UPDATE data message
